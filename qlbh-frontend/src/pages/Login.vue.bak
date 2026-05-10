@@ -1,0 +1,295 @@
+<template>
+  <div class="login-wrapper">
+    <div class="login-container">
+      <div class="login-sidebar">
+        <div class="sidebar-content">
+          <h1>Shop Ngọc</h1>
+          <p>Trải nghiệm mua sắm mô hình Anime hàng đầu Việt Nam.</p>
+        </div>
+      </div>
+
+      <div class="login-main">
+        <div class="login-header">
+          <h2>Chào mừng trở lại</h2>
+          <p>Vui lòng đăng nhập để tiếp tục</p>
+        </div>
+
+        <div class="role-switcher">
+          <button 
+            type="button" 
+            :class="['role-card', { active: role === 'buyer' }]"
+            @click="role = 'buyer'"
+          >
+            <i class="fas fa-user"></i>
+            <span>Người mua</span>
+          </button>
+          <button 
+            type="button" 
+            :class="['role-card', { active: role === 'manager' }]"
+            @click="role = 'manager'"
+          >
+            <i class="fas fa-user-shield"></i>
+            <span>Quản lý</span>
+          </button>
+        </div>
+
+        <form @submit.prevent="submitLogin" class="login-form">
+          <div class="input-group">
+            <label>Email</label>
+            <input v-model="email" type="email" placeholder="email@example.com" required />
+          </div>
+
+          <div class="input-group">
+            <label>Mật khẩu</label>
+            <input v-model="password" type="password" placeholder="••••••••" required />
+          </div>
+
+          <button type="submit" class="btn-submit">Đăng nhập ngay</button>
+          
+          <p v-if="error" class="error-text">{{ error }}</p>
+        </form>
+
+        <div class="divider">
+          <span>Hoặc đăng nhập với</span>
+        </div>
+
+        <div class="social-actions">
+          <button class="btn-social google">
+            <img src="https://img.icons8.com/color/24/000000/google-logo.png" /> Google
+          </button>
+          <button class="btn-social facebook">
+            <img src="https://img.icons8.com/fluency/24/000000/facebook-new.png" /> Facebook
+          </button>
+        </div>
+
+        <div class="login-footer">
+          Chưa có tài khoản? <a href="#">Đăng ký ngay</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue"
+import { useRouter } from "vue-router"
+
+const router = useRouter()
+const email = ref("")
+const password = ref("")
+const role = ref("buyer")
+const error = ref("")
+
+const submitLogin = () => {
+  error.value = ""
+  if (role.value === "manager") {
+    if (email.value !== "ngocmt363@gmail.com" || password.value !== "10112005") {
+      error.value = "Tài khoản quản lý không hợp lệ!"
+      return
+    }
+  }
+  
+  localStorage.setItem("auth", JSON.stringify({ isAuthenticated: true, role: role.value }))
+  role.value === "manager" ? router.push("/admin/customers") : router.push("/")
+}
+</script>
+
+<style scoped>
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0b1325;
+  padding: 20px;
+}
+
+.login-container {
+  display: flex;
+  width: 1000px;
+  max-width: 100%;
+  background: rgba(4, 10, 22, 0.74);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+
+/* Sidebar bên trái cho chuyên nghiệp */
+.login-sidebar {
+  flex: 1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%), 
+              url(https://images.search.yahoo.com/images/view;_ylt=Awr9zNk7d85pFtAl_B2JzbkF;_ylu=c2VjA3NyBHNsawNpbWcEb2lkAzAzOWRmMmIwZTMxMGZmZjdlNjI3OGFhZWExZDNmYmI5BGdwb3MDMgRpdANiaW5n?back=https%3A%2F%2Fimages.search.yahoo.com%2Fsearch%2Fimages%3Fp%3Danime%2Bn%25E1%25BB%2581n%2B%25C4%2591en%26ei%3DUTF-8%26type%3DE210US91215G0%26fr%3Dmcafee%26fr2%3Dp%253As%252Cv%253Ai%252Cm%253Asb-top%26tab%3Dorganic%26ri%3D2&w=1280&h=720&imgurl=img6.thuthuatphanmem.vn%2Fuploads%2F2022%2F02%2F12%2Fanh-nen-anime-den-dep_084757516.jpg&rurl=https%3A%2F%2Fxaydungso.vn%2Fbai-viet-khac%2Fbo-suu-tap-2000-hinh-nen-den-anime-dep-mat-cuc-cool-vi-cb.html&size=71KB&p=anime+n%E1%BB%81n+%C4%91en&oid=039df2b0e310fff7e6278aaea1d3fbb9&fr2=p%3As%2Cv%3Ai%2Cm%3Asb-top&fr=mcafee&tt=B%E1%BB%99+s%C6%B0u+t%E1%BA%ADp+2000+H%C3%ACnh+n%E1%BB%81n+%C4%91en+anime+%C4%90%E1%BA%B9p+m%E1%BA%AFt%2C+c%E1%BB%B1c+cool&b=0&ni=90&no=2&ts=&tab=organic&sigr=4iH.Kz.Q60jN&sigb=WcNDDzDy9hFh&sigi=2m58uMcqlHJ_&sigt=P2lvAz.0KJ7v&.crumb=I8CyfUL3Qd7&fr=mcafee&fr2=p%3As%2Cv%3Ai%2Cm%3Asb-top&type=E210US91215G0);
+  background-blend-mode: overlay;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  padding: 40px;
+  color: white;
+}
+
+.login-main {
+  width: 450px;
+  padding: 50px;
+}
+
+.login-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 8px;
+}
+
+.login-header p {
+  color: #718096;
+  margin-bottom: 32px;
+}
+
+/* Role Selection Card Style */
+.role-switcher {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.role-card {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #edf2f7;
+  border-radius: 12px;
+   
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.role-card i {
+  font-size: 18px;
+  color: #a0aec0;
+}
+
+.role-card.active {
+  border-color: #667eea;
+  background: #f0f5ff;
+}
+
+.role-card.active i, .role-card.active span {
+  color: #667eea;
+  font-weight: 600;
+}
+
+/* Form Styles */
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #4a5568;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.input-group input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: #1a202c;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.divider {
+  text-align: center;
+  margin: 24px 0;
+  position: relative;
+}
+
+.divider::before {
+  content: "";
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  height: 1px; background: #edf2f7;
+}
+
+.divider span {
+   
+  padding: 0 12px;
+  position: relative;
+  font-size: 13px;
+  color: #a0aec0;
+}
+
+/* Social Buttons */
+.social-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-social {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+   
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.btn-social:hover {
+  background: #f7fafc;
+}
+
+.login-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 14px;
+  color: #718096;
+}
+
+.login-footer a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.error-text {
+  color: #e53e3e;
+  font-size: 13px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 850px) {
+  .login-sidebar { display: none; }
+  .login-container { width: 450px; }
+}
+</style>
