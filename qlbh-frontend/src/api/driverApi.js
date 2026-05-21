@@ -1,24 +1,24 @@
 // src/api/driverApi.js
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
-const API_URL = "http://127.0.0.1:8000/api/drivers";
+const API_URL = "/api/drivers";
 
 export const getDrivers = (search = "", page = 1) => {
-  return axios.get(`${API_URL}?search=${search}&page=${page}`);
+  return axiosInstance.get(`${API_URL}?search=${search}&page=${page}`);
 };
 
 export const getDriver = (id) => {
-  return axios.get(`${API_URL}/${id}`);
+  return axiosInstance.get(`${API_URL}/${id}`);
 };
 
 export const createDriver = (data) => {
-  return axios.post(API_URL, data);
+  return axiosInstance.post(API_URL, data);
 };
 
 export const updateDriver = (id, data) => {
-  return axios.put(`${API_URL}/${id}`, data);
+  return axiosInstance.put(`${API_URL}/${id}`, data);
 };
 
 export const deleteDriver = (id) => {
-  return axios.delete(`${API_URL}/${id}`);
+  return axiosInstance.delete(`${API_URL}/${id}`);
 };

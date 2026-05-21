@@ -79,43 +79,84 @@
     <nav class="menu-bar">
       <div class="menu-bar-inner">
         <router-link to="/" class="menu-item" :class="{ active: route.path === '/' }">Trang chủ</router-link>
-        
-       <!-- Dynamic categories menu -->
-<template v-for="category in categories" :key="category.id">
+    
+        <!-- MÔ HÌNH / FIGURE DROPDOWN -->
+        <div class="menu-item dropdown">
+          <span @click="openDropdown = openDropdown === 'figures' ? null : 'figures'">MÔ HÌNH / FIGURE</span>
+          <button class="dropdown-btn" @click.stop="openDropdown = openDropdown === 'figures' ? null : 'figures'">▼</button>
+          
+          <div class="submenu" v-show="openDropdown === 'figures'">
+            <router-link to="/category/mo-hinh-pvc" @click="closeDropdown">MÔ HÌNH PVC</router-link>
+            <router-link to="/category/mo-hinh-resin" @click="closeDropdown">MÔ HÌNH RESIN</router-link>
+            <router-link to="/category/hang-dat-truoc" @click="closeDropdown">HÀNG ĐẶT TRƯỚC</router-link>
+            <router-link to="/category/hang-sap-xuat" @click="closeDropdown">HÀNG SẮP XUẤT</router-link>
+            <router-link to="/category/san-pham-noi-bat" @click="closeDropdown">SẢN PHẨM NỘI BẬT</router-link>
+          </div>
+        </div>
 
-  <!-- CATEGORY CÓ CON → DROPDOWN -->
-  <div 
-    v-if="category.children && category.children.length"
-    class="menu-item dropdown"
-  >
-    <span @click="goCategory(category)">{{ category.name }}</span>
-    <button class="dropdown-btn" @click.stop="toggleDropdown(category.id)">▼</button>
+        <!-- SẢN PHẨM KHÁC DROPDOWN -->
+        <div class="menu-item dropdown">
+          <span @click="openDropdown = openDropdown === 'other' ? null : 'other'">SẢN PHẨM KHÁC</span>
+          <button class="dropdown-btn" @click.stop="openDropdown = openDropdown === 'other' ? null : 'other'">▼</button>
+          
+          <div class="submenu" v-show="openDropdown === 'other'">
+            <router-link to="/category/ao-phong" @click="closeDropdown">ÁO PHÔNG</router-link>
+            <router-link to="/category/mu-non" @click="closeDropdown">MŨ / NÓN</router-link>
+            <router-link to="/category/phu-kien" @click="closeDropdown">PHỤ KIỆN</router-link>
+          </div>
+        </div>
 
-    <div class="submenu" v-show="openDropdown === category.id">
-      <router-link 
-        v-for="child in category.children" 
-        :key="child.id"
-        :to="getCategoryLink(child)"
-        @click="closeDropdown"
-      >
-        {{ child.name }}
-      </router-link>
-    </div>
-  </div>
+        <!-- KHUYẾN MÃI DROPDOWN -->
+        <div class="menu-item dropdown">
+          <span @click="openDropdown = openDropdown === 'promotions' ? null : 'promotions'">KHUYẾN MÃI</span>
+          <button class="dropdown-btn" @click.stop="openDropdown = openDropdown === 'promotions' ? null : 'promotions'">▼</button>
+          
+          <div class="submenu" v-show="openDropdown === 'promotions'">
+            <router-link to="/promotions?filter=all" @click="closeDropdown">TẤT CẢ ƯU ĐÃI</router-link>
+            <router-link to="/promotions?filter=flash" @click="closeDropdown">FLASH SALE</router-link>
+            <router-link to="/promotions?filter=gift" @click="closeDropdown">TẶNG QUÀ</router-link>
+            <router-link to="/promotions?filter=combo" @click="closeDropdown">MUA THEO COMBO</router-link>
+          </div>
+        </div>
 
-  <!-- CATEGORY KHÔNG CÓ CON → LINK THƯỜNG -->
-  <router-link
-    v-else
-    :to="getCategoryLink(category)"
-    class="menu-item"
-  >
-    {{ category.name }}
-  </router-link>
+        <!-- HƯỚNG DẪN DROPDOWN -->
+        <div class="menu-item dropdown">
+          <span @click="openDropdown = openDropdown === 'guide' ? null : 'guide'">HƯỚNG DẪN</span>
+          <button class="dropdown-btn" @click.stop="openDropdown = openDropdown === 'guide' ? null : 'guide'">▼</button>
+          
+          <div class="submenu" v-show="openDropdown === 'guide'">
+            <router-link to="/guide?section=how-to-buy" @click="closeDropdown">CÁCH MUA</router-link>
+            <router-link to="/guide?section=payment" @click="closeDropdown">THANH TOÁN</router-link>
+            <router-link to="/guide?section=shipping" @click="closeDropdown">GIAO HÀNG</router-link>
+          </div>
+        </div>
 
-</template>
+        <!-- TIN TỨC DROPDOWN -->
+        <div class="menu-item dropdown">
+          <span @click="openDropdown = openDropdown === 'news' ? null : 'news'">TIN TỨC</span>
+          <button class="dropdown-btn" @click.stop="openDropdown = openDropdown === 'news' ? null : 'news'">▼</button>
+          
+          <div class="submenu" v-show="openDropdown === 'news'">
+            <router-link to="/news?section=latest" @click="closeDropdown">TIN MỚI</router-link>
+            <router-link to="/news?section=reviews" @click="closeDropdown">REVIEW</router-link>
+            <router-link to="/news?section=events" @click="closeDropdown">SỰ KIỆN</router-link>
+          </div>
+        </div>
+
+        <!-- KHÁC DROPDOWN -->
+        <div class="menu-item dropdown">
+          <span @click="openDropdown = openDropdown === 'other-pages' ? null : 'other-pages'">KHÁC</span>
+          <button class="dropdown-btn" @click.stop="openDropdown = openDropdown === 'other-pages' ? null : 'other-pages'">▼</button>
+          
+          <div class="submenu" v-show="openDropdown === 'other-pages'">
+            <router-link to="/about" @click="closeDropdown">GIỚI THIỆU</router-link>
+            <router-link to="/recruitment?section=jobs" @click="closeDropdown">TUYỂN DỤNG</router-link>
+            <router-link to="/recruitment?section=affiliates" @click="closeDropdown">CỘNG TÁC VIÊN</router-link>
+          </div>
+        </div>
     
         <!-- Liên hệ static link -->
-        <router-link to="/contact" class="menu-item" :class="{ active: route.path === '/contact' }">Liên hệ</router-link>
+        <router-link to="/contact" class="menu-item" :class="{ active: route.path === '/contact' }">LIÊN HỆ</router-link>
       </div>
     </nav>
 
@@ -163,91 +204,27 @@
   </div>
 </template>
 
-// src/layouts/MainLayout.vue
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import categoryService from '../services/categoryService'
+import { getCartCount } from '../services/cartService.js'
 
-// Helper function for category navigation
-const getCategoryLink = (category) => {
-  const keyName = category.name?.trim().toUpperCase() || ''
-  const keySlug = category.slug?.trim().toLowerCase() || ''
-
-  const pageRoutes = {
-    // root pages
-    'TRANG CHỦ': '/',
-    'HOME': '/',
-    'HƯỚNG DẪN': '/guide',
-    'KHUYẾN MÃI': '/promotions',
-    'TIN TỨC': '/news',
-    'KHÁC': '/recruitment',
-    'GIỚI THIỆU': '/about',
-
-    // guide child pages
-    'CÁCH MUA': '/guide?section=how-to-buy',
-    'THANH TOÁN': '/guide?section=payment',
-    'GIAO HÀNG': '/guide?section=shipping',
-
-    // news child pages
-    'LIÊN HỆ': '/news?section=contact',
-    'TIN MỚI': '/news?section=latest',
-    'REVIEW': '/news?section=reviews',
-    'SỰ KIỆN': '/news?section=events',
-
-    // recruitment child pages
-    'TUYỂN DỤNG': '/recruitment?section=jobs',
-    'CỘNG TÁC VIÊN': '/recruitment?section=affiliates',
-    'LIÊN HỆ QUẢNG CÁO': '/recruitment?section=advertising'
-  }
-
-  const slugRoutes = {
-    'hinh-danh-chu': '/',
-    'huong-dan': '/guide',
-    'khuyen-mai': '/promotions',
-    'tin-tuc': '/news',
-    'khac': '/recruitment',
-    'gioi-thieu': '/about',
-    'cach-mua': '/guide?section=how-to-buy',
-    'thanh-toan': '/guide?section=payment',
-    'giao-hang': '/guide?section=shipping',
-    'lien-he': '/news?section=contact',
-    'tin-moi': '/news?section=latest',
-    'review': '/news?section=reviews',
-    'su-kien': '/news?section=events',
-    'tuyen-dung': '/recruitment?section=jobs',
-    'cong-tac-vien': '/recruitment?section=affiliates',
-    'lien-he-quang-cao': '/recruitment?section=advertising'
-  }
-
-  return pageRoutes[keyName] || slugRoutes[keySlug] || `/shop/category/${category.id}`
-}
-
-const goCategory = (category) => {
-  router.push(getCategoryLink(category))
-}
 // Các biến và hàm liên quan đến tìm kiếm, giỏ hàng, và dropdown menu
 const route = useRoute()
 const router = useRouter()
 const searchKeyword = ref('')
 const cartCount = ref(0)
 const openDropdown = ref(null)
-const categories = ref([])
 
-// Fetch categories on mount
-onMounted(async () => {
-  document.addEventListener('click', handleClickOutside)
-  try {
-   const response = await categoryService.getAll()
-categories.value = Array.isArray(response.data.data) ? response.data.data : []
-  } catch (error) {
-    console.error('Failed to fetch categories:', error)
+const updateCartCount = () => {
+  cartCount.value = getCartCount()
+}
+
+const handleStorage = (event) => {
+  if (event.key === 'cart') {
+    updateCartCount()
   }
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
+}
 
 // Hàm để thực hiện tìm kiếm
 const onSearch = () => {
@@ -262,10 +239,6 @@ const goCart = () => {
 }
 
 // Dropdown functions
-const toggleDropdown = (categoryId) => {
-  openDropdown.value = openDropdown.value === categoryId ? null : categoryId
-}
-
 const closeDropdown = () => {
   openDropdown.value = null
 }
@@ -277,6 +250,18 @@ const handleClickOutside = (event) => {
   }
 }
 
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  updateCartCount()
+  window.addEventListener('cart-updated', updateCartCount)
+  window.addEventListener('storage', handleStorage)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('cart-updated', updateCartCount)
+  window.removeEventListener('storage', handleStorage)
+})
 </script>
 
 

@@ -168,6 +168,7 @@ const handleOutsideClick = (event) => {
 
 const logout = () => {
   localStorage.removeItem("auth")
+  localStorage.removeItem("auth_token")
   user.value = null
   closeDropdowns()
   window.location.href = "/login"

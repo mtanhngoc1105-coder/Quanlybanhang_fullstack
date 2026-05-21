@@ -13,6 +13,7 @@ class CustomerController extends Controller
     // ===============================
     public function index()
     {
+        dd('Danh sách khách hàng');
         $customers = Customer::paginate(10);
 
         return response()->json([

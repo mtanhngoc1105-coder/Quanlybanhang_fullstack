@@ -1,24 +1,24 @@
 // src/api/productApi.js
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
-const API_URL = "http://127.0.0.1:8000/api/products";
+const API_URL = "/api/products";
 
 export const getProducts = (search = "", page = 1) => {
-  return axios.get(`${API_URL}?search=${search}&page=${page}`);
+  return axiosInstance.get(`${API_URL}?search=${search}&page=${page}`);
 };
 
 export const getProduct = (id) => {
-  return axios.get(`${API_URL}/${id}`);
+  return axiosInstance.get(`${API_URL}/${id}`);
 };
 
 export const createProduct = (data) => {
-  return axios.post(API_URL, data);
+  return axiosInstance.post(API_URL, data);
 };
 
 export const updateProduct = (id, data) => {
-  return axios.put(`${API_URL}/${id}`, data);
+  return axiosInstance.put(`${API_URL}/${id}`, data);
 };
 
 export const deleteProduct = (id) => {
-  return axios.delete(`${API_URL}/${id}`);
+  return axiosInstance.delete(`${API_URL}/${id}`);
 };

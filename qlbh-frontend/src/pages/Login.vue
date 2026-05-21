@@ -1,14 +1,7 @@
 <template>
-  <div class="login-wrapper">
-    <div class="login-container">
-      <div class="login-sidebar">
-        <div class="sidebar-content">
-          <h1>ANIME NEI</h1>
-          <p>Trải nghiệm mua sắm mô hình Anime hàng đầu Việt Nam.</p>
-        </div>
-      </div>
-
-      <div class="login-main">
+  <div class="login-container">
+    <div class="form-section">
+      <div class="login-glass">
         <div class="login-header">
           <h2>Chào mừng trở lại</h2>
           <p>Vui lòng đăng nhập để tiếp tục</p>
@@ -39,9 +32,11 @@
             <input 
               v-model="email" 
               type="email" 
+              autocomplete="email"
               placeholder="email@example.com" 
               required 
             />
+            <i class="fas fa-envelope input-icon"></i>
           </div>
 
           <div class="input-group">
@@ -49,12 +44,13 @@
             <input 
               v-model="password" 
               type="password" 
+              autocomplete="current-password"
               placeholder="••••••••" 
               required 
             />
+            <i class="fas fa-eye-slash input-icon"></i>
           </div>
 
-          <!-- Thông báo gợi ý đăng nhập khác khi có họ đơn số -->
           <div v-if="hasSingleSurnameSuggestion" class="suggestion-box">
             <i class="fas fa-lightbulb"></i>
             <span>
@@ -69,7 +65,6 @@
           
           <p v-if="error" class="error-text">{{ error }}</p>
           
-          <!-- Hiển thị điểm khi đăng nhập thành công -->
           <div v-if="successMessage" class="success-message">
             <i class="fas fa-check-circle"></i>
             {{ successMessage }}
@@ -90,11 +85,11 @@
             <span>Facebook</span>
           </a>
         </div>
-
-        <div class="login-footer">
-          Chưa có tài khoản? <a href="#">Đăng ký ngay</a>
-        </div>
       </div>
+    </div>
+
+    <div class="character-section">
+      <Character3D />
     </div>
   </div>
 </template>
@@ -102,6 +97,8 @@
 <script setup>
 import { ref, computed, nextTick } from "vue"
 import { useRouter } from "vue-router"
+import axiosInstance from "../api/axiosInstance"
+import Character3D from "../components/Character3D.vue"
 
 const router = useRouter()
 const email = ref("")
@@ -133,34 +130,36 @@ const submitLogin = async () => {
   isLoading.value = true
 
   try {
-    // Logic kiểm tra tài khoản quản lý
-    if (role.value === "manager") {
-      if (email.value !== "ngocmt363@gmail.com" || password.value !== "10112005") {
-        error.value = "Tài khoản quản lý không hợp lệ!"
-        return
-      }
-    }
+    // Gọi backend API để đăng nhập
+    const response = await axiosInstance.post('/api/login', {
+      email: email.value,
+      password: password.value
+    })
 
-    // Giả lập API call (thay bằng API thật)
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const { token, user } = response.data
 
-    // Lưu thông tin đăng nhập
+    // Lưu JWT token
+    localStorage.setItem("auth_token", token)
+    
+    // Lưu thông tin user và auth status
     const userData = {
       isAuthenticated: true,
-      role: role.value,
-      email: email.value,
-      points: getRandomPoints(), // Công điểm ngẫu nhiên
+      role: user.role,
+      email: user.email,
+      id: user.id,
+      name: user.name,
+      points: user.points || 0,
       loginTime: new Date().toISOString()
     }
     
     localStorage.setItem("auth", JSON.stringify(userData))
     
-    // Hiển thị thông báo thành công với điểm
-    successMessage.value = `Đăng nhập thành công! Bạn nhận được ${userData.points} điểm`
+    // Hiển thị thông báo thành công
+    successMessage.value = `Đăng nhập thành công! Chào ${user.name}`
     
     // Chuyển hướng sau 1.5s
     setTimeout(() => {
-      if (role.value === "manager") {
+      if (user.role === "manager") {
         router.push("/admin/customers")
       } else {
         router.push("/")
@@ -168,65 +167,74 @@ const submitLogin = async () => {
     }, 1500)
 
   } catch (err) {
-    error.value = "Có lỗi xảy ra, vui lòng thử lại!"
+    if (err.response?.status === 401) {
+      error.value = err.response?.data?.message || "Email hoặc mật khẩu không đúng!"
+    } else {
+      error.value = err.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
+    }
   } finally {
     isLoading.value = false
   }
-}
-
-// Hàm công điểm ngẫu nhiên (có thể thay bằng logic thật)
-const getRandomPoints = () => {
-  return Math.floor(Math.random() * 50) + 10 // 10-60 điểm
 }
 </script>
 
 <style scoped>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
-.login-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f4f7fe;
-  padding: 20px;
-}
-
 .login-container {
-  display: flex;
-  width: 1000px;
-  max-width: 100%;
-  background: white;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
-}
+  /* Chiếm trọn toàn bộ màn hình */
+  width: 100vw;
+  height: 100vh;
 
-.login-sidebar {
-  flex: 1;
-  background: url(https://images.unsplash.com/photo-1739371308017-ba5a130cefb8?q=80&w=736&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D) center/cover no-repeat;
-  background-color: rgba(15, 21, 36, 0.85);
-  background-blend-mode: overlay;
+  /* Đường dẫn đến ảnh nền */
+  background-image: url('/images/login.jpg');
+
+  /* Căn chỉnh ảnh nền chuẩn */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+
+  /* Layout flexbox */
   display: flex;
   align-items: center;
-  padding: 40px;
-  color: white;
+  justify-content: space-between;
+  padding: 0 8% 0 15%; /* Tăng lề trái và phải để xịch vào giữa */
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-.login-main {
+.form-section {
   width: 450px;
-  padding: 50px;
+  z-index: 2;
+}
+
+.character-section {
+  position: relative;
+  height: 100vh;
+  width: 50%;
+  z-index: 1;
+}
+
+/* Hiệu ứng Glassmorphism cho form */
+.login-glass {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
 .login-header h2 {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: #1a202c;
   margin-bottom: 8px;
 }
 
 .login-header p {
-  color: #718096;
+  color: #4a5568;
   margin-bottom: 32px;
 }
 
@@ -239,25 +247,22 @@ const getRandomPoints = () => {
 .role-card {
   flex: 1;
   padding: 12px;
-  border: 2px solid #edf2f7;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 12px;
-  background: white;
+  background: rgba(255, 255, 255, 0.4);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   transition: all 0.2s;
-}
-
-.role-card i {
-  font-size: 18px;
-  color: #a0aec0;
+  color: #4a5568;
 }
 
 .role-card.active {
-  border-color: #667eea;
-  background: #f0f5ff;
+  background: rgba(255, 255, 255, 0.9);
+  border-color: #ffffff;
+  color: #667eea;
 }
 
 .role-card.active i, .role-card.active span {
@@ -267,6 +272,7 @@ const getRandomPoints = () => {
 
 .input-group {
   margin-bottom: 20px;
+  position: relative;
 }
 
 .input-group label {
@@ -274,55 +280,58 @@ const getRandomPoints = () => {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: #4a5568;
+  color: #1a202c;
 }
 
 .input-group input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
   outline: none;
   transition: 0.2s;
+  color: #1a202c;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.input-group input::placeholder {
+  color: #718096;
 }
 
 .input-group input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
 }
 
-/* Gợi ý họ đơn số */
-.suggestion-box {
-  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-  border: 1px solid #ffeaa7;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #856404;
-}
-
-.suggestion-box i {
-  color: #f39c12;
+.input-icon {
+  position: absolute;
+  right: 16px;
+  top: 42px;
+  color: #a0aec0;
 }
 
 .btn-submit {
   width: 100%;
-  padding: 14px;
+  padding: 16px;
   background: #1a202c;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-weight: 600;
+  font-size: 16px;
   cursor: pointer;
   margin-top: 10px;
-  position: relative;
+  transition: 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn-submit:hover {
+  background: #2d3748;
 }
 
 .loading-spinner {
@@ -338,10 +347,26 @@ const getRandomPoints = () => {
   to { transform: rotate(360deg); }
 }
 
-/* Thông báo thành công với điểm */
+.suggestion-box {
+  background: rgba(255, 243, 205, 0.8);
+  border: 1px solid rgba(255, 234, 167, 0.8);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #856404;
+}
+
+.suggestion-box i {
+  color: #f39c12;
+}
+
 .success-message {
-  background: linear-gradient(135deg, #d4edda, #c3e6cb);
-  border: 1px solid #c3e6cb;
+  background: rgba(212, 237, 218, 0.8);
+  border: 1px solid rgba(195, 230, 203, 0.8);
   border-radius: 8px;
   padding: 12px;
   margin-top: 16px;
@@ -358,14 +383,8 @@ const getRandomPoints = () => {
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .divider {
@@ -378,15 +397,18 @@ const getRandomPoints = () => {
   content: "";
   position: absolute;
   top: 50%; left: 0; right: 0;
-  height: 1px; background: #edf2f7;
+  height: 1px; 
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .divider span {
-  background: white;
-  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+  padding: 4px 12px;
+  border-radius: 12px;
   position: relative;
   font-size: 13px;
-  color: #a0aec0;
+  color: #4a5568;
 }
 
 .social-actions {
@@ -400,10 +422,10 @@ const getRandomPoints = () => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background: white;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.4);
   cursor: pointer;
   font-weight: 500;
   transition: 0.2s;
@@ -412,21 +434,7 @@ const getRandomPoints = () => {
 }
 
 .btn-social:hover {
-  background: #f7fafc;
-  border-color: #cbd5e0;
-}
-
-.login-footer {
-  margin-top: 32px;
-  text-align: center;
-  font-size: 14px;
-  color: #718096;
-}
-
-.login-footer a {
-  color: #667eea;
-  text-decoration: none;
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .error-text {
@@ -437,7 +445,11 @@ const getRandomPoints = () => {
 }
 
 @media (max-width: 850px) {
-  .login-sidebar { display: none; }
-  .login-container { width: 450px; }
+  .login-container { 
+    flex-direction: column;
+    justify-content: center;
+  }
+  .character-section { display: none; }
+  .form-section { width: 100%; max-width: 450px; }
 }
 </style>

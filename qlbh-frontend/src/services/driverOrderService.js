@@ -1,13 +1,13 @@
-import axios from "axios"
+import axiosInstance from "../api/axiosInstance"
 
-const API = "http://127.0.0.1:8000/api/driver-orders"
+const API = "/api/driver-orders"
 
-export const getDriverOrders = () => axios.get(API)
+export const getDriverOrders = () => axiosInstance.get(API)
 
-export const getDriverOrder = (orderId) => axios.get(`${API}/${orderId}`)
+export const getDriverOrder = (orderId) => axiosInstance.get(`${API}/${orderId}`)
 
-export const createDriverOrder = (data) => axios.post(API, data)
+export const createDriverOrder = (data) => axiosInstance.post(API, data)
 
-export const updateDriverOrder = (orderId, data) => axios.put(`${API}/${orderId}`, data)
+export const updateDriverOrder = (orderId, data) => axiosInstance.put(`${API}/${orderId}`, data)
 
-export const deleteDriverOrder = (orderId) => axios.delete(`${API}/${orderId}`)
+export const deleteDriverOrder = (orderId) => axiosInstance.delete(`${API}/${orderId}`)

@@ -32,12 +32,14 @@
 
     <div class="products-grid" v-if="!loading && products.length > 0">
       <div v-for="product in products" :key="product.id" class="product-card">
-        <div class="product-image">
+        <router-link :to="productDetailLink(product)" class="product-image">
           <img :src="getProductImage(product)" :alt="product.product_name" />
           <div class="product-badge">{{ getProductRating(product) }}⭐</div>
-        </div>
+        </router-link>
         <div class="product-info">
-          <h3>{{ product.product_name }}</h3>
+          <router-link :to="productDetailLink(product)" class="product-title-link">
+            <h3>{{ product.product_name }}</h3>
+          </router-link>
           <p class="product-description">{{ truncateText(product.description || 'Sản phẩm chất lượng', 50) }}</p>
           <div class="product-footer">
             <div class="product-price">
@@ -64,6 +66,8 @@
 import { ref, onMounted, watch } from "vue"
 import { useRoute } from "vue-router"
 import { getProducts } from "../../services/productService"
+import { addToCartService } from "../../services/cartService.js"
+import { mockProducts, categoryNames } from "../../data/mockProducts"
 
 const route = useRoute()
 const products = ref([])
@@ -77,21 +81,69 @@ const loadData = async () => {
     loading.value = true
     error.value = ""
     
-    // Get category_id from route params
-    const categoryId = route.params.categoryId
+    const categorySlug = route.params.slug
     
-    const params = {}
-    if (search.value) params.search = search.value
-    if (categoryId) params.category_id = categoryId
+    // Kiểm xem có mock data cho category này không
+    if (categorySlug && mockProducts[categorySlug]) {
+      products.value = mockProducts[categorySlug]
+    } else if (categorySlug) {
+      // Nếu không có mock data, cố gắng fetch từ API
+      const params = { slug: categorySlug }
+      if (search.value) params.search = search.value
+      
+      try {
+        const res = await getProducts(params)
+        const data = res.data?.data
+        products.value = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.data)
+            ? data.data
+            : []
+      } catch {
+        // Nếu API fail, use mock data hoặc empty array
+        products.value = []
+      }
+    } else {
+      // Fetch tất cả sản phẩm
+      const params = {}
+      if (search.value) params.search = search.value
+      
+      const res = await getProducts(params)
+      const data = res.data?.data
+      products.value = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.data)
+          ? data.data
+          : []
+    }
     
-    const res = await getProducts(params)
-    products.value = res.data.data || res.data || []
+    // Apply search filter
+    if (search.value) {
+      products.value = products.value.filter(p =>
+        p.product_name.toLowerCase().includes(search.value.toLowerCase()) ||
+        (p.description && p.description.toLowerCase().includes(search.value.toLowerCase()))
+      )
+    }
+    
+    // Apply sorting
+    applySorting()
   } catch (err) {
     error.value = "Không thể tải sản phẩm. Vui lòng thử lại."
     console.error(err)
   } finally {
     loading.value = false
   }
+}
+
+const applySorting = () => {
+  if (sortBy.value === 'price-asc') {
+    products.value.sort((a, b) => a.price - b.price)
+  } else if (sortBy.value === 'price-desc') {
+    products.value.sort((a, b) => b.price - a.price)
+  } else if (sortBy.value === 'popular') {
+    products.value.sort((a, b) => (b.rating || 0) - (a.rating || 0))
+  }
+  // newest is default
 }
 
 const truncateText = (text, length) => {
@@ -113,30 +165,38 @@ const getProductRating = (product) => {
   return product.rating || 4.5
 }
 
+const productDetailLink = (product) => {
+  return `/products/${product.id}`
+}
+
 const addToCart = (product) => {
-  alert(`${product.product_name} đã được thêm vào giỏ hàng!`)
+  addToCartService(product)
+  alert(`${product.product_name || 'Sản phẩm'} đã được thêm vào giỏ hàng!`)
 }
 
 const getPageTitle = () => {
-  const categoryId = route.params.categoryId
-  if (categoryId) {
-    // In a real app, you'd fetch the category name from API
-    return `Danh mục sản phẩm`
+  const slug = route.params.slug
+  if (slug && categoryNames[slug]) {
+    return categoryNames[slug]
+  }
+  if (slug) {
+    return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
   }
   return "Cửa hàng của chúng tôi"
 }
 
 const getPageDescription = () => {
-  const categoryId = route.params.categoryId
-  if (categoryId) {
-    return "Khám phá các sản phẩm trong danh mục này"
+  const slug = route.params.slug
+  if (slug) {
+    return `Khám phá các sản phẩm trong danh mục "${getPageTitle()}"`
   }
   return "Khám phá các sản phẩm tốt nhất với giá tốt nhất"
 }
 
 onMounted(loadData)
-watch(() => route.params.categoryId, loadData)
+watch(() => route.params.slug, loadData)
 watch(search, loadData)
+watch(sortBy, applySorting)
 </script>
 
 <style scoped>

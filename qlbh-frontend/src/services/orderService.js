@@ -1,25 +1,25 @@
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance"
 
-const API_URL = "http://127.0.0.1:8000/api/orders";
+const API = "/api/orders"
 
 export default {
   getAll(page = 1, search = "") {
-    return axios.get(`${API_URL}?page=${page}&search=${search}`);
+    return axiosInstance.get(`${API}?page=${page}&search=${search}`);
   },
 
   getOne(id) {
-    return axios.get(`${API_URL}/${id}`);
+    return axiosInstance.get(`${API}/${id}`);
   },
 
   create(data) {
-    return axios.post(API_URL, data);
+    return axiosInstance.post(API, data);
   },
 
   update(id, data) {
-    return axios.put(`${API_URL}/${id}`, data);
+    return axiosInstance.put(`${API}/${id}`, data);
   },
 
   delete(id) {
-    return axios.delete(`${API_URL}/${id}`);
+    return axiosInstance.delete(`${API}/${id}`);
   }
 };

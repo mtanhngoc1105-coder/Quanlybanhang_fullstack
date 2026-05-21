@@ -1,9 +1,9 @@
-import axios from "axios"
+import axiosInstance from "../api/axiosInstance"
 
-const API = "http://127.0.0.1:8000/api/sellers"
+const API = "/api/sellers"
 
-export const getSellers = () => axios.get(API)
-export const getSeller = (id) => axios.get(`${API}/${id}`)
-export const createSeller = (data) => axios.post(API, data)
-export const updateSeller = (id, data) => axios.put(`${API}/${id}`, data)
-export const deleteSeller = (id) => axios.delete(`${API}/${id}`)
+export const getSellers = () => axiosInstance.get(API)
+export const getSeller = (id) => axiosInstance.get(`${API}/${id}`)
+export const createSeller = (data) => axiosInstance.post(API, data)
+export const updateSeller = (id, data) => axiosInstance.put(`${API}/${id}`, data)
+export const deleteSeller = (id) => axiosInstance.delete(`${API}/${id}`)

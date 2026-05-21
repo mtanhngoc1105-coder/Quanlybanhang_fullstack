@@ -7,22 +7,46 @@
       </router-link>
     </div>
 
-    <div class="search-filter mb-3">
-      <input
-        v-model="searchQuery"
-        @input="filterSellers"
-        type="text"
-        class="form-control shadow-sm"
-        placeholder="Tìm kiếm người bán theo tên, SĐT..."
-        style="max-width: 400px;"
-      >
+    <div class="search-filter mb-3 d-flex align-items-center gap-2">
+      <div class="d-flex gap-2 align-items-center flex-nowrap" style="flex: 1 1 auto;">
+        <input
+          v-model="searchQuery"
+          @input="handleSearchInput"
+          type="text"
+          class="form-control shadow-sm"
+          placeholder="Tìm kiếm người bán theo tên, SĐT, ID..."
+          style="min-width: 300px; flex: 1 1 400px;"
+        >
+        <select
+          v-model="selectedStatus"
+          @change="onFilterChange"
+          class="form-select shadow-sm"
+          style="min-width: 200px;"
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="active">Hoạt động</option>
+          <option value="inactive">Không hoạt động</option>
+          <option value="pending">Chờ duyệt</option>
+        </select>
+        <button
+          @click="reloadSellers"
+          class="btn btn-outline-secondary shadow-sm"
+          :disabled="loading"
+        >
+          <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+          Reload
+        </button>
+      </div>
+    </div>
+    
+    <div v-if="sellers.length === 0 && (searchQuery || selectedStatus) && !loading" class="alert alert-info shadow-sm">
+      Không tìm thấy người bán nào phù hợp.
     </div>
 
-    <div v-if="filteredSellers.length === 0 && searchQuery" class="alert alert-info shadow-sm">
-      Không tìm thấy người bán nào phù hợp với "{{ searchQuery }}"
-    </div>
-
-    <div class="table-responsive shadow-sm rounded">
+    <div 
+      class="table-responsive shadow-sm rounded"
+      :class="{ 'table-loading': loading }"
+    >
       <table class="table table-bordered table-hover align-middle mb-0">
         <thead class="table-dark">
           <tr>
@@ -35,37 +59,77 @@
         </thead>
 
         <tbody>
-          <tr v-for="s in paginatedSellers" :key="s.id">
-            <td class="fw-bold text-secondary">#{{ s.id }}</td>
-            <td class="fw-semibold">{{ s.seller_name }}</td>
-            <td>{{ s.seller_phone_number }}</td>
-            
-            <td>
-              <div class="d-flex justify-content-center gap-2">
-                <button @click="editSeller(s.id)" class="btn btn-light btn-sm border shadow-sm px-2">
-                  Sửa
-                </button>
-                <button @click="remove(s.id)" class="btn btn-danger btn-sm shadow-sm px-2">
-                  Xóa
-                </button>
-              </div>
-            </td>
+          <!-- FACEBOOK-STYLE SKELETON LOADING -->
+          <template v-if="loading">
+            <tr v-for="n in 8" :key="'skeleton-' + n" class="skeleton-row">
+              <!-- ID Column -->
+              <td class="skeleton-cell">
+                <div class="skeleton-block skeleton-id"></div>
+              </td>
+              
+              <!-- Seller Name -->
+              <td class="skeleton-cell">
+                <div class="skeleton-line skeleton-line-long"></div>
+              </td>
+              
+              <!-- Phone -->
+              <td class="skeleton-cell">
+                <div class="skeleton-line skeleton-line-medium"></div>
+              </td>
+              
+              <!-- Actions -->
+              <td class="skeleton-cell text-center">
+                <div class="skeleton-actions">
+                  <div class="skeleton-btn skeleton-btn-edit"></div>
+                  <div class="skeleton-btn skeleton-btn-delete"></div>
+                </div>
+              </td>
+              
+              <!-- View -->
+              <td class="skeleton-cell text-center">
+                <div class="skeleton-eye"></div>
+              </td>
+            </tr>
+          </template>
 
-            <td class="text-center">
-              <a 
-                href="javascript:void(0)" 
-                @click="viewSeller(s.id)" 
-                class="view-icon-link" 
-                title="Xem chi tiết"
-              >
-                👁️
-              </a>
-            </td>
-          </tr>
+          <!-- DATA -->
+          <template v-else-if="paginatedSellers.length > 0">
+            <tr v-for="s in paginatedSellers" :key="s.id">
+              <td class="fw-bold text-secondary">#{{ s.id }}</td>
+              <td class="fw-semibold">{{ s.seller_name }}</td>
+              <td>{{ s.seller_phone_number }}</td>
+              
+              <td>
+                <div class="d-flex justify-content-center gap-2">
+                  <router-link :to="`/admin/sellers/edit/${s.id}`" class="btn btn-light btn-sm border shadow-sm px-2">
+                    Sửa
+                  </router-link>
+                  <button @click="remove(s.id)" class="btn btn-danger btn-sm shadow-sm px-2">
+                    Xóa
+                  </button>
+                </div>
+              </td>
 
-          <tr v-if="sellers.length === 0">
-            <td colspan="5" class="text-center py-4 text-muted">Đang tải dữ liệu người bán...</td>
-          </tr>
+              <td class="text-center">
+                <router-link 
+                  :to="`/admin/sellers/${s.id}`" 
+                  class="view-icon-link"
+                  title="Xem chi tiết"
+                >
+                  👁️
+                </router-link>
+              </td>
+            </tr>
+          </template>
+
+          <!-- EMPTY -->
+          <template v-else>
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">
+                Không có người bán để hiển thị.
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -73,13 +137,13 @@
     <nav v-if="totalPages > 1" class="mt-4">
       <ul class="pagination justify-content-center">
         <li class="page-item" :class="{ disabled: currentPage === 1 }">
-          <a class="page-link" @click.prevent="currentPage > 1 && currentPage--" href="#">Trước</a>
+          <a class="page-link" @click.prevent="goToPage(currentPage - 1)" href="#">Trước</a>
         </li>
         <li v-for="page in visiblePages" :key="page" class="page-item" :class="{ active: page === currentPage }">
-          <a class="page-link" @click.prevent="currentPage = page" href="#">{{ page }}</a>
+          <a class="page-link" @click.prevent="goToPage(page)" href="#">{{ page }}</a>
         </li>
         <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <a class="page-link" @click.prevent="currentPage < totalPages && currentPage++" href="#">Sau</a>
+          <a class="page-link" @click.prevent="goToPage(currentPage + 1)" href="#">Sau</a>
         </li>
       </ul>
     </nav>
@@ -88,66 +152,93 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue"
-import { useRoute, useRouter } from "vue-router"
+import { useRoute } from "vue-router"
 import { getSellers, deleteSeller } from "../../services/sellerService"
 
+const loading = ref(false)
 const route = useRoute()
-const router = useRouter()
 const sellers = ref([])
 const searchQuery = ref('')
+const selectedStatus = ref('')
 const currentPage = ref(1)
-const itemsPerPage = ref(10)
+const pagination = ref({ current_page: 1, last_page: 1, total: 0 })
+let searchTimeout = null
 
 onMounted(async () => {
   const urlSearch = route.query.search
+  const urlStatus = route.query.status
   if (urlSearch) searchQuery.value = urlSearch
-  await loadSellers()
+  if (urlStatus) selectedStatus.value = urlStatus
+  await loadSellers(1)
 })
 
-const loadSellers = async () => {
+const loadSellers = async (page = 1) => {
   try {
-    const res = await getSellers()
-    // Theo cấu trúc cũ của bạn: res.data.data
-    sellers.value = res.data.data || []
+    loading.value = true
+    const res = await getSellers({
+      search: searchQuery.value.trim(),
+      status: selectedStatus.value,
+      page
+    })
+    
+    // Giữ cấu trúc cũ: res.data.data
+    const data = res.data?.data || {}
+    sellers.value = data.data || []
+    pagination.value = {
+      current_page: data.current_page || page,
+      last_page: data.last_page || 1,
+      total: data.total || 0
+    }
+    currentPage.value = pagination.value.current_page
   } catch (error) {
     console.error('Error loading sellers:', error)
     sellers.value = []
+    pagination.value = { current_page: 1, last_page: 1, total: 0 }
+  } finally {
+    loading.value = false
   }
 }
 
-const filteredSellers = computed(() => {
-  if (!searchQuery.value.trim()) return sellers.value
-  const query = searchQuery.value.toLowerCase().trim()
-  return sellers.value.filter(seller =>
-    seller.seller_name?.toLowerCase().includes(query) ||
-    seller.seller_phone_number?.toLowerCase().includes(query) ||
-    seller.id?.toString().includes(query)
-  )
-})
+const handleSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    currentPage.value = 1
+    loadSellers(1)
+  }, 350)
+}
 
-const totalPages = computed(() => Math.ceil(filteredSellers.value.length / itemsPerPage.value))
+const onFilterChange = async () => {
+  currentPage.value = 1
+  await loadSellers(1)
+}
 
-const paginatedSellers = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return filteredSellers.value.slice(start, end)
-})
+const totalPages = computed(() => pagination.value.last_page || 1)
 
 const visiblePages = computed(() => {
   const pages = []
-  for (let i = 1; i <= totalPages.value; i++) pages.push(i)
+  for (let i = 1; i <= totalPages.value; i++) {
+    pages.push(i)
+  }
   return pages
 })
 
-const filterSellers = () => { currentPage.value = 1 }
-const viewSeller = (id) => router.push(`/admin/sellers/${id}`)
-const editSeller = (id) => router.push(`/admin/sellers/edit/${id}`)
+const paginatedSellers = computed(() => sellers.value)
+
+const goToPage = async (page) => {
+  if (page < 1 || page > totalPages.value) return
+  currentPage.value = page
+  await loadSellers(page)
+}
+
+const reloadSellers = async () => {
+  await loadSellers(currentPage.value)
+}
 
 const remove = async (id) => {
   if (confirm("Bạn có chắc chắn muốn xoá người bán này?")) {
     try {
       await deleteSeller(id)
-      await loadSellers()
+      await loadSellers(currentPage.value)
     } catch (error) {
       alert('Có lỗi xảy ra khi xoá người bán!')
     }
@@ -155,9 +246,18 @@ const remove = async (id) => {
 }
 
 watch(() => route.query.search, (newSearch) => {
-  if (newSearch) {
-    searchQuery.value = newSearch
+  if (newSearch !== undefined) {
+    searchQuery.value = newSearch || ''
     currentPage.value = 1
+    loadSellers(1)
+  }
+})
+
+watch(() => route.query.status, (newStatus) => {
+  if (newStatus !== undefined) {
+    selectedStatus.value = newStatus || ''
+    currentPage.value = 1
+    loadSellers(1)
   }
 })
 </script>
@@ -177,7 +277,6 @@ watch(() => route.query.search, (newSearch) => {
   font-size: 1.2rem;
   transition: transform 0.2s;
   display: inline-block;
-  cursor: pointer;
 }
 
 .view-icon-link:hover {
@@ -186,5 +285,145 @@ watch(() => route.query.search, (newSearch) => {
 
 .page-link {
   cursor: pointer;
+}
+
+/* ========================================
+   FACEBOOK-STYLE SKELETON LOADING 
+======================================== */
+.skeleton-row {
+  height: 64px;
+  border-bottom: 1px solid #e4e6ea;
+}
+
+.skeleton-cell {
+  position: relative;
+  overflow: hidden;
+  padding: 12px !important;
+  background: transparent;
+}
+
+.skeleton-block,
+.skeleton-line,
+.skeleton-btn,
+.skeleton-eye {
+  position: relative;
+  background: linear-gradient(
+    90deg,
+    #f0f2f5 0%,
+    #e9ebee 25%,
+    #f0f2f5 50%,
+    #e9ebee 75%,
+    #f0f2f5 100%
+  );
+  background-size: 400% 100%;
+  border-radius: 8px;
+  animation: facebook-shimmer 1.6s ease-in-out infinite;
+  overflow: hidden;
+}
+
+@keyframes facebook-shimmer {
+  0% {
+    background-position: 400% 0;
+    transform: translateX(-10px);
+  }
+  50% {
+    background-position: -400% 0;
+    transform: translateX(10px);
+  }
+  100% {
+    background-position: 400% 0;
+    transform: translateX(-10px);
+  }
+}
+
+.skeleton-id {
+  width: 40px;
+  height: 20px;
+  margin: 0 auto;
+  border-radius: 4px;
+}
+
+.skeleton-line-long {
+  width: 85%;
+  height: 16px;
+  margin: 4px 0;
+}
+
+.skeleton-line-medium {
+  width: 70%;
+  height: 14px;
+  margin: 4px 0;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.skeleton-btn {
+  height: 32px;
+  border-radius: 6px;
+}
+
+.skeleton-btn-edit {
+  width: 48px;
+  background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.skeleton-btn-delete {
+  width: 40px;
+  background: linear-gradient(90deg, #f8d7da 0%, #f1aeb5 100%);
+}
+
+.skeleton-eye {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Enhanced shimmer */
+@keyframes facebook-shimmer {
+  0% { background-position: 400% 0; filter: brightness(1); }
+  25% { background-position: 200% 0; filter: brightness(1.02); }
+  50% { background-position: 0% 0; filter: brightness(1.05); }
+  75% { background-position: -200% 0; filter: brightness(1.02); }
+  100% { background-position: -400% 0; filter: brightness(1); }
+}
+
+/* Table loading overlay */
+.table-loading {
+  opacity: 0.7;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.table-loading table {
+  position: relative;
+}
+
+.table-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  animation: table-shimmer-overlay 2s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes table-shimmer-overlay {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@media (max-width: 768px) {
+  .skeleton-line-long { width: 95% !important; }
+  .skeleton-line-medium { width: 85% !important; }
 }
 </style>

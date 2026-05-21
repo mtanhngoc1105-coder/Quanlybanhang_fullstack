@@ -86,6 +86,7 @@
 import { ref, onMounted, onUnmounted } from "vue"
 import { useRouter } from "vue-router"
 import { getProducts } from "../services/productService"
+import { addToCartService } from "../services/cartService.js"
 
 const router = useRouter()
 
@@ -192,6 +193,7 @@ const truncateText = (text, length) => {
 }
 
 const addToCart = (product) => {
+  addToCartService(product)
   alert(`${product.product_name || 'Mô hình anime'} đã được thêm vào giỏ hàng`)
 }
 

@@ -1,11 +1,11 @@
-import axios from "axios"
+import axiosInstance from "./axiosInstance"
 
-const API = "http://127.0.0.1:8000/api/categories"
+const API = "/api/categories"
 
 export default {
-  getAll: () => axios.get(API),
-  get: (id) => axios.get(`${API}/${id}`),
-  create: (data) => axios.post(API,data),
-  update: (id,data) => axios.put(`${API}/${id}`,data),
-  delete: (id) => axios.delete(`${API}/${id}`)
+  getAll: () => axiosInstance.get(API),
+  get: (id) => axiosInstance.get(`${API}/${id}`),
+  create: (data) => axiosInstance.post(API,data),
+  update: (id,data) => axiosInstance.put(`${API}/${id}`,data),
+  delete: (id) => axiosInstance.delete(`${API}/${id}`)
 }

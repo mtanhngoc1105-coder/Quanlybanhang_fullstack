@@ -1,9 +1,9 @@
-import axios from "axios"
+import axiosInstance from "../api/axiosInstance"
 
-const API = "http://127.0.0.1:8000/api/order-items"
+const API = "/api/order-items"
 
-export const getOrderItems = () => axios.get(API)
-export const getOrderItem = (id) => axios.get(`${API}/${id}`)
-export const createOrderItem = (data) => axios.post(API, data)
-export const updateOrderItem = (id,data) => axios.put(`${API}/${id}`, data)
-export const deleteOrderItem = (id) => axios.delete(`${API}/${id}`)
+export const getOrderItems = () => axiosInstance.get(API)
+export const getOrderItem = (id) => axiosInstance.get(`${API}/${id}`)
+export const createOrderItem = (data) => axiosInstance.post(API, data)
+export const updateOrderItem = (id,data) => axiosInstance.put(`${API}/${id}`, data)
+export const deleteOrderItem = (id) => axiosInstance.delete(`${API}/${id}`)

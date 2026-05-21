@@ -3,26 +3,52 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2 class="fw-bold">Danh sách đánh giá</h2>
       <router-link to="/admin/reviews/create" class="btn btn-primary shadow-sm">
-         Thêm đánh giá
+        Thêm đánh giá
       </router-link>
     </div>
 
-    <div class="search-filter mb-3">
-      <input
-        v-model="searchQuery"
-        @input="filterReviews"
-        type="text"
-        class="form-control shadow-sm"
-        placeholder="Tìm kiếm đánh giá theo ID đơn hàng, khách hàng..."
-        style="max-width: 400px;"
-      >
+    <div class="search-filter mb-3 d-flex align-items-center gap-2">
+      <div class="d-flex gap-2 align-items-center flex-nowrap" style="flex: 1 1 auto;">
+        <input
+          v-model="searchQuery"
+          @input="handleSearchInput"
+          type="text"
+          class="form-control shadow-sm"
+          placeholder="Tìm kiếm đánh giá theo ID đơn hàng, khách hàng..."
+          style="min-width: 300px; flex: 1 1 400px;"
+        >
+        <select
+          v-model="selectedRating"
+          @change="onFilterChange"
+          class="form-select shadow-sm"
+          style="min-width: 200px;"
+        >
+          <option value="">Tất cả sao</option>
+          <option value="5">⭐⭐⭐⭐⭐ 5 sao</option>
+          <option value="4">⭐⭐⭐⭐ 4 sao</option>
+          <option value="3">⭐⭐⭐ 3 sao</option>
+          <option value="2">⭐⭐ 2 sao</option>
+          <option value="1">⭐ 1 sao</option>
+        </select>
+        <button
+          @click="reloadReviews"
+          class="btn btn-outline-secondary shadow-sm"
+          :disabled="loading"
+        >
+          <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+          Reload
+        </button>
+      </div>
+    </div>
+    
+    <div v-if="reviews.length === 0 && (searchQuery || selectedRating) && !loading" class="alert alert-info shadow-sm">
+      Không tìm thấy đánh giá nào phù hợp.
     </div>
 
-    <div v-if="filteredReviews.length === 0 && searchQuery" class="alert alert-info shadow-sm">
-      Không tìm thấy đánh giá nào phù hợp với "{{ searchQuery }}"
-    </div>
-
-    <div class="table-responsive shadow-sm rounded">
+    <div 
+      class="table-responsive shadow-sm rounded"
+      :class="{ 'table-loading': loading }"
+    >
       <table class="table table-bordered table-hover align-middle mb-0">
         <thead class="table-dark">
           <tr>
@@ -36,38 +62,90 @@
         </thead>
 
         <tbody>
-          <tr v-for="r in paginatedReviews" :key="r.id">
-            <td class="fw-bold text-secondary">#{{ r.id }}</td>
-            <td>#{{ r.order_id }}</td>
-            <td>#{{ r.customer_id }}</td>
-            <td class="text-warning fw-bold">⭐ {{ r.rating }}/5</td>
-            
-            <td>
-              <div class="d-flex justify-content-center gap-2">
-                <button @click="editReview(r.id)" class="btn btn-light btn-sm border shadow-sm px-2">
-                  Sửa
-                </button>
-                <button @click="remove(r.id)" class="btn btn-danger btn-sm shadow-sm px-2">
-                  Xóa
-                </button>
-              </div>
-            </td>
+          <!-- FACEBOOK-STYLE SKELETON LOADING -->
+          <template v-if="loading">
+            <tr v-for="n in 8" :key="'skeleton-' + n" class="skeleton-row">
+              <!-- ID Column -->
+              <td class="skeleton-cell">
+                <div class="skeleton-block skeleton-id"></div>
+              </td>
+              
+              <!-- Order ID -->
+              <td class="skeleton-cell">
+                <div class="skeleton-line skeleton-line-short"></div>
+              </td>
+              
+              <!-- Customer ID -->
+              <td class="skeleton-cell">
+                <div class="skeleton-line skeleton-line-short"></div>
+              </td>
+              
+              <!-- Rating -->
+              <td class="skeleton-cell">
+                <div class="skeleton-block skeleton-rating"></div>
+              </td>
+              
+              <!-- Actions -->
+              <td class="skeleton-cell text-center">
+                <div class="skeleton-actions">
+                  <div class="skeleton-btn skeleton-btn-edit"></div>
+                  <div class="skeleton-btn skeleton-btn-delete"></div>
+                </div>
+              </td>
+              
+              <!-- View -->
+              <td class="skeleton-cell text-center">
+                <div class="skeleton-eye"></div>
+              </td>
+            </tr>
+          </template>
 
-            <td class="text-center">
-              <a 
-                href="javascript:void(0)" 
-                @click="viewReview(r.id)" 
-                class="view-icon-link" 
-                title="Xem chi tiết"
-              >
-                👁️
-              </a>
-            </td>
-          </tr>
+          <!-- DATA -->
+          <template v-else-if="paginatedReviews.length > 0">
+            <tr v-for="r in paginatedReviews" :key="r.id">
+              <td class="fw-bold text-secondary">#{{ r.id }}</td>
+              <td><span class="badge bg-primary">#{{ r.order_id }}</span></td>
+              <td><span class="badge bg-info">#{{ r.customer_id }}</span></td>
+              <td>
+                <div class="d-flex align-items-center gap-1">
+                  <span class="text-warning fs-5" v-for="n in 5" :key="n">
+                    ⭐
+                  </span>
+                  <small class="text-muted ms-2">({{ r.rating }}/5)</small>
+                </div>
+              </td>
+              
+              <td>
+                <div class="d-flex justify-content-center gap-2">
+                  <router-link :to="`/admin/reviews/edit/${r.id}`" class="btn btn-light btn-sm border shadow-sm px-2">
+                    Sửa
+                  </router-link>
+                  <button @click="remove(r.id)" class="btn btn-danger btn-sm shadow-sm px-2">
+                    Xóa
+                  </button>
+                </div>
+              </td>
 
-          <tr v-if="reviews.length === 0">
-            <td colspan="6" class="text-center py-4 text-muted">Đang tải dữ liệu đánh giá...</td>
-          </tr>
+              <td class="text-center">
+                <router-link 
+                  :to="`/admin/reviews/${r.id}`" 
+                  class="view-icon-link"
+                  title="Xem chi tiết"
+                >
+                  👁️
+                </router-link>
+              </td>
+            </tr>
+          </template>
+
+          <!-- EMPTY -->
+          <template v-else>
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">
+                Không có đánh giá để hiển thị.
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -75,13 +153,13 @@
     <nav v-if="totalPages > 1" class="mt-4">
       <ul class="pagination justify-content-center">
         <li class="page-item" :class="{ disabled: currentPage === 1 }">
-          <a class="page-link" @click.prevent="currentPage > 1 && currentPage--" href="#">Trước</a>
+          <a class="page-link" @click.prevent="goToPage(currentPage - 1)" href="#">Trước</a>
         </li>
         <li v-for="page in visiblePages" :key="page" class="page-item" :class="{ active: page === currentPage }">
-          <a class="page-link" @click.prevent="currentPage = page" href="#">{{ page }}</a>
+          <a class="page-link" @click.prevent="goToPage(page)" href="#">{{ page }}</a>
         </li>
         <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <a class="page-link" @click.prevent="currentPage < totalPages && currentPage++" href="#">Sau</a>
+          <a class="page-link" @click.prevent="goToPage(currentPage + 1)" href="#">Sau</a>
         </li>
       </ul>
     </nav>
@@ -90,61 +168,115 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue"
-import { useRoute, useRouter } from "vue-router"
+import { useRoute } from "vue-router"
 import { getReviews, deleteReview } from "../../services/reviewService"
 
+const loading = ref(false)
 const route = useRoute()
-const router = useRouter()
 const reviews = ref([])
 const searchQuery = ref('')
+const selectedRating = ref('')
 const currentPage = ref(1)
-const itemsPerPage = ref(10)
+const pagination = ref({ current_page: 1, last_page: 1, total: 0 })
+let searchTimeout = null
 
 onMounted(async () => {
   const urlSearch = route.query.search
+  const urlRating = route.query.rating
   if (urlSearch) searchQuery.value = urlSearch
+  if (urlRating) selectedRating.value = urlRating
   await loadReviews()
 })
 
 const loadReviews = async () => {
   try {
+    loading.value = true
+    // GIỮ NGUYÊN API CŨ - KHÔNG TRUYỀN PARAMS
     const res = await getReviews()
-    // Theo cấu trúc res.data.data.data
-    reviews.value = res.data.data.data || res.data.data || []
+    
+    // Client-side filter & pagination
+    let filtered = res.data.data.data || res.data.data || []
+    
+    // Filter theo search
+    if (searchQuery.value.trim()) {
+      const query = searchQuery.value.toLowerCase().trim()
+      filtered = filtered.filter(review =>
+        review.id?.toString().includes(query) ||
+        review.order_id?.toString().includes(query) ||
+        review.customer_id?.toString().includes(query) ||
+        review.rating?.toString().includes(query)
+      )
+    }
+    
+    // Filter theo rating
+    if (selectedRating.value) {
+      filtered = filtered.filter(review => review.rating.toString() === selectedRating.value)
+    }
+    
+    reviews.value = filtered
+    
+    // Client-side pagination
+    const itemsPerPage = 10
+    pagination.value = {
+      current_page: currentPage.value,
+      last_page: Math.ceil(filtered.length / itemsPerPage),
+      total: filtered.length
+    }
   } catch (error) {
     console.error('Error loading reviews:', error)
     reviews.value = []
+    pagination.value = { current_page: 1, last_page: 1, total: 0 }
+  } finally {
+    loading.value = false
   }
 }
 
-const filteredReviews = computed(() => {
-  if (!searchQuery.value.trim()) return reviews.value
-  const query = searchQuery.value.toLowerCase().trim()
-  return reviews.value.filter(review =>
-    review.id?.toString().includes(query) ||
-    review.order_id?.toString().includes(query) ||
-    review.customer_id?.toString().includes(query) ||
-    review.rating?.toString().includes(query)
-  )
-})
+const handleSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    currentPage.value = 1
+    loadReviews()
+  }, 350)
+}
 
-const totalPages = computed(() => Math.ceil(filteredReviews.value.length / itemsPerPage.value))
+const onFilterChange = async () => {
+  currentPage.value = 1
+  await loadReviews()
+}
 
-const paginatedReviews = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return filteredReviews.value.slice(start, end)
-})
+const totalPages = computed(() => pagination.value.last_page || 1)
 
 const visiblePages = computed(() => {
   const pages = []
-  for (let i = 1; i <= totalPages.value; i++) pages.push(i)
+  const itemsPerPage = 10
+  const startIdx = Math.max(1, currentPage.value - 2)
+  const endIdx = Math.min(totalPages.value, currentPage.value + 2)
+  
+  for (let i = startIdx; i <= endIdx; i++) {
+    pages.push(i)
+  }
   return pages
 })
 
-const filterReviews = () => { currentPage.value = 1 }
-const viewReview = (id) => router.push(`/admin/reviews/${id}`)
-const editReview = (id) => router.push(`/admin/reviews/edit/${id}`)
+const paginatedReviews = computed(() => {
+  const itemsPerPage = 10
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return reviews.value.slice(start, end)
+})
+
+const goToPage = async (page) => {
+  if (page < 1 || page > totalPages.value) return
+  currentPage.value = page
+  await loadReviews()
+}
+
+const reloadReviews = async () => {
+  searchQuery.value = ''
+  selectedRating.value = ''
+  currentPage.value = 1
+  await loadReviews()
+}
 
 const remove = async (id) => {
   if (confirm("Bạn có chắc chắn muốn xoá đánh giá này?")) {
@@ -158,9 +290,18 @@ const remove = async (id) => {
 }
 
 watch(() => route.query.search, (newSearch) => {
-  if (newSearch) {
-    searchQuery.value = newSearch
+  if (newSearch !== undefined) {
+    searchQuery.value = newSearch || ''
     currentPage.value = 1
+    loadReviews()
+  }
+})
+
+watch(() => route.query.rating, (newRating) => {
+  if (newRating !== undefined) {
+    selectedRating.value = newRating || ''
+    currentPage.value = 1
+    loadReviews()
   }
 })
 </script>
@@ -180,7 +321,6 @@ watch(() => route.query.search, (newSearch) => {
   font-size: 1.2rem;
   transition: transform 0.2s;
   display: inline-block;
-  cursor: pointer;
 }
 
 .view-icon-link:hover {
@@ -189,5 +329,151 @@ watch(() => route.query.search, (newSearch) => {
 
 .page-link {
   cursor: pointer;
+}
+
+/* ========================================
+   FACEBOOK-STYLE SKELETON LOADING 
+======================================== */
+.skeleton-row {
+  height: 64px;
+  border-bottom: 1px solid #e4e6ea;
+}
+
+.skeleton-cell {
+  position: relative;
+  overflow: hidden;
+  padding: 12px !important;
+  background: transparent;
+}
+
+.skeleton-block,
+.skeleton-line,
+.skeleton-btn,
+.skeleton-eye {
+  position: relative;
+  background: linear-gradient(
+    90deg,
+    #f0f2f5 0%,
+    #e9ebee 25%,
+    #f0f2f5 50%,
+    #e9ebee 75%,
+    #f0f2f5 100%
+  );
+  background-size: 400% 100%;
+  border-radius: 8px;
+  animation: facebook-shimmer 1.6s ease-in-out infinite;
+  overflow: hidden;
+}
+
+@keyframes facebook-shimmer {
+  0% {
+    background-position: 400% 0;
+    transform: translateX(-10px);
+  }
+  50% {
+    background-position: -400% 0;
+    transform: translateX(10px);
+  }
+  100% {
+    background-position: 400% 0;
+    transform: translateX(-10px);
+  }
+}
+
+.skeleton-id {
+  width: 40px;
+  height: 20px;
+  margin: 0 auto;
+  border-radius: 4px;
+}
+
+.skeleton-line-short {
+  width: 50%;
+  height: 14px;
+  margin: 4px 0;
+}
+
+.skeleton-line-medium {
+  width: 70%;
+  height: 14px;
+  margin: 4px 0;
+}
+
+.skeleton-rating {
+  width: 60px;
+  height: 20px;
+  border-radius: 10px;
+  margin: 0 auto;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.skeleton-btn {
+  height: 32px;
+  border-radius: 6px;
+}
+
+.skeleton-btn-edit {
+  width: 48px;
+  background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.skeleton-btn-delete {
+  width: 40px;
+  background: linear-gradient(90deg, #f8d7da 0%, #f1aeb5 100%);
+}
+
+.skeleton-eye {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Enhanced shimmer */
+@keyframes facebook-shimmer {
+  0% { background-position: 400% 0; filter: brightness(1); }
+  25% { background-position: 200% 0; filter: brightness(1.02); }
+  50% { background-position: 0% 0; filter: brightness(1.05); }
+  75% { background-position: -200% 0; filter: brightness(1.02); }
+  100% { background-position: -400% 0; filter: brightness(1); }
+}
+
+/* Table loading overlay */
+.table-loading {
+  opacity: 0.7;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.table-loading table {
+  position: relative;
+}
+
+.table-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  animation: table-shimmer-overlay 2s infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes table-shimmer-overlay {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@media (max-width: 768px) {
+  .skeleton-line-medium { width: 85% !important; }
 }
 </style>

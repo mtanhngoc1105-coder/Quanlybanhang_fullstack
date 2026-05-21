@@ -1,128 +1,139 @@
 <template>
   <div class="guide-page">
-    <div class="page-header">
-      <h1>{{ getSectionTitle() }}</h1>
-      <p>{{ getSectionDescription() }}</p>
-    </div>
+    <header class="page-header-banner">
+      <div class="banner-content">
+        <h1 class="banner-title">{{ getSectionTitle() }}</h1>
+        <p class="banner-subtitle">{{ getSectionDescription() }}</p>
+      </div>
+    </header>
 
-    <!-- Navigation Tabs -->
-    <div class="guide-tabs">
-      <button 
-        v-for="tab in guideTabs" 
-        :key="tab.id"
-        :class="['tab', { active: activeSection === tab.id }]"
-        @click="activeSection = tab.id"
-      >
-        {{ tab.label }}
-      </button>
-    </div>
+    <nav class="guide-tabs-container" role="tablist">
+      <div class="tabs-pill-wrapper">
+        <button 
+          v-for="tab in guideTabs" 
+          :key="tab.id"
+          :class="['tab-pill-btn', { active: activeSection === tab.id }]"
+          @click="activeSection = tab.id"
+          role="tab"
+          :aria-selected="activeSection === tab.id"
+        >
+          <span class="tab-label">{{ tab.label }}</span>
+        </button>
+      </div>
+    </nav>
 
-    <div class="guide-content">
-      <!-- CÁCH MUA Section -->
-      <div v-if="activeSection === 'how-to-buy'" class="section">
-        <div class="guide-section">
+    <main class="guide-content">
+      
+      <div v-if="activeSection === 'how-to-buy'" class="section-pane">
+        <div class="guide-section text-article-card">
           <div class="guide-steps">
-            <div class="step">
-              <div class="step-number">1</div>
+            <div class="step-card">
+              <div class="step-number-badge">1</div>
               <div class="step-content">
-                <h3>Chọn sản phẩm</h3>
-                <p>Duyệt qua các danh mục sản phẩm và chọn sản phẩm bạn yêu thích.</p>
+                <h3>🔍 Chọn sản phẩm</h3>
+                <p>Duyệt qua các danh mục sản phẩm của AnimeNei, sử dụng bộ lọc tìm kiếm để lựa chọn mẫu mô hình Anime/Manga chính hãng mà bạn yêu thích.</p>
               </div>
             </div>
-            <div class="step">
-              <div class="step-number">2</div>
+            
+            <div class="step-card">
+              <div class="step-number-badge">2</div>
               <div class="step-content">
-                <h3>Thêm vào giỏ hàng</h3>
-                <p>Click vào nút "Thêm vào giỏ" để thêm sản phẩm vào giỏ hàng của bạn.</p>
+                <h3>🛒 Thêm vào giỏ hàng</h3>
+                <p>Kiểm tra kỹ thông tin phiên bản (bản thường/bản giới hạn), click vào nút <strong>"Thêm vào giỏ"</strong> hoặc <strong>"Mua ngay"</strong> để chuyển tới trang hoàn tất đơn hàng.</p>
               </div>
             </div>
-            <div class="step">
-              <div class="step-number">3</div>
+            
+            <div class="step-card">
+              <div class="step-number-badge">3</div>
               <div class="step-content">
-                <h3>Điền thông tin</h3>
-                <p>Điền thông tin giao hàng và địa chỉ nhận hàng.</p>
+                <h3>📝 Điền thông tin giao hàng</h3>
+                <p>Cung cấp chính xác họ tên, số điện thoại chính chủ và địa chỉ nhận hàng chi tiết để hệ thống tính toán chính xác lộ trình và thời gian vận chuyển.</p>
               </div>
             </div>
-            <div class="step">
-              <div class="step-number">4</div>
+            
+            <div class="step-card">
+              <div class="step-number-badge">4</div>
               <div class="step-content">
-                <h3>Thanh toán</h3>
-                <p>Chọn phương thức thanh toán và hoàn tất đơn hàng.</p>
+                <h3>💳 Thanh toán & Hoàn tất</h3>
+                <p>Lựa chọn phương thức thanh toán phù hợp nhất. Hệ thống gửi mã vận đơn qua Email/SMS ngay sau khi điều phối viên xác nhận đóng gói thành công.</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- THANH TOÁN Section -->
-      <div v-if="activeSection === 'payment'" class="section">
-        <div class="guide-section">
-          <h2>Phương Thức Thanh Toán</h2>
-          <div class="payment-methods">
-            <div class="payment-method">
-              <span class="payment-icon"></span>
-              <h3>Thẻ tín dụng / Debit</h3>
-              <p>Thanh toán bằng Visa, Mastercard hoặc thẻ nội địa.</p>
-              <p class="info">Nhanh chóng, an toàn và bảo mật với công nghệ mã hóa.</p>
+      <div v-if="activeSection === 'payment'" class="section-pane">
+        <div class="guide-section text-article-card">
+          <h2 class="section-inner-title">🛡️ Phương Thức Thanh Toán An Toàn</h2>
+          <div class="payment-methods-grid">
+            <div class="payment-method-item">
+              <div class="payment-icon-wrapper">💳</div>
+              <h3>Thẻ Tín Dụng / Debit</h3>
+              <p>Hỗ trợ Visa, Mastercard, JCB hoặc thẻ nội địa ATM thông qua cổng kết nối an toàn bảo mật cao.</p>
+              <span class="info-badge font-italic">Bảo mật mã hóa đầu cuối</span>
             </div>
-            <div class="payment-method">
-              <span class="payment-icon"></span>
-              <h3>Chuyển khoản ngân hàng</h3>
-              <p>Thanh toán trực tiếp qua tài khoản ngân hàng.</p>
-              <p class="info">Miễn phí, không mất thời gian.</p>
+            
+            <div class="payment-method-item">
+              <div class="payment-icon-wrapper">🏦</div>
+              <h3>Chuyển Khoản Ngân Hàng</h3>
+              <p>Chuyển khoản qua mã QR hiển thị tại trang hoàn tất đơn hàng. Xác thực giao dịch tự động trong 30 giây.</p>
+              <span class="info-badge font-italic">Xử lý tự động 24/7</span>
             </div>
-            <div class="payment-method">
-              <span class="payment-icon"></span>
-              <h3>Tiền mặt khi nhận hàng</h3>
-              <p>Thanh toán khi bạn nhận được hàng (COD).</p>
-              <p class="info">Không rủi ro, chỉ thanh toán khi chắc chắn hàng.</p>
+            
+            <div class="payment-method-item">
+              <div class="payment-icon-wrapper">💵</div>
+              <h3>Tiền Mặt Khi Nhận Hàng (COD)</h3>
+              <p>Nhận kiện hàng mô hình tại nhà, kiểm tra tình trạng hộp bên ngoài và thanh toán trực tiếp cho shipper.</p>
+              <span class="info-badge font-italic">An tâm 100% khi mua sắm</span>
             </div>
-            <div class="payment-method">
-              <span class="payment-icon"></span>
-              <h3>Ví điện tử</h3>
-              <p>Thanh toán qua Momo, Zalo Pay, Grab Pay.</p>
-              <p class="info">Tiện lợi và nhanh chóng.</p>
+            
+            <div class="payment-method-item">
+              <div class="payment-icon-wrapper">📱</div>
+              <h3>Ví Điện Tử Liên Kết</h3>
+              <p>Thanh toán siêu tốc, nhận thêm nhiều voucher giảm giá độc quyền thông qua ví điện tử MoMo, ZaloPay, ShopeePay.</p>
+              <span class="info-badge font-italic">Tiện lợi, nhiều ưu đãi</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- GIAO HÀNG Section -->
-      <div v-if="activeSection === 'shipping'" class="section">
-        <div class="guide-section">
-          <h2>Thông Tin Giao Hàng</h2>
-          <div class="shipping-info">
-            <div class="shipping-item">
-              <h3> Giao hàng nội thành Hà Nội</h3>
-              <p><strong>Phí giao hàng:</strong> Miễn phí cho đơn hàng từ 299.000đ</p>
-              <p><strong>Thời gian:</strong> 1-2 ngày làm việc</p>
-              <p class="info">Giao tận tay, nhanh chóng và an toàn.</p>
+      <div v-if="activeSection === 'shipping'" class="section-pane">
+        <div class="guide-section text-article-card">
+          <h2 class="section-inner-title">📦 Lộ Trình & Quy Chuẩn Đóng Gói</h2>
+          <div class="shipping-info-grid">
+            <div class="shipping-info-item">
+              <h3>📍 Nội thành Hà Nội</h3>
+              <p class="shipping-meta"><strong>Phí giao hàng:</strong> Miễn phí cho mọi đơn hàng từ 299.000đ</p>
+              <p class="shipping-meta"><strong>Thời gian:</strong> 1-2 ngày làm việc (Hỗ trợ ship hỏa tốc)</p>
+              <p class="info-desc text-muted">Nhân viên trực tiếp giao tận tay, đảm bảo hộp mô hình nguyên vẹn không móp méo.</p>
             </div>
-            <div class="shipping-item">
-              <h3> Giao hàng ngoại thành / tỉnh khác</h3>
-              <p><strong>Phí giao hàng:</strong> 30.000đ - 60.000đ tùy vào khoảng cách</p>
-              <p><strong>Thời gian:</strong> 2-5 ngày làm việc</p>
-              <p class="info">Hợp tác với các đơn vị vận chuyển uy tín.</p>
+            
+            <div class="shipping-info-item">
+              <h3>✈️ Các Tỉnh Thành Khác</h3>
+              <p class="shipping-meta"><strong>Phí giao hàng:</strong> 30.000đ - 60.000đ tùy khoảng cách</p>
+              <p class="shipping-meta"><strong>Thời gian:</strong> 2-5 ngày làm việc</p>
+              <p class="info-desc text-muted">Đồng hành cùng các đối tác vận chuyển chuyên nghiệp: GHTK, Viettel Post, VNPost.</p>
             </div>
-            <div class="shipping-item">
-              <h3>Đóng gói & Bảo vệ sản phẩm</h3>
-              <p><strong>Đóng gói:</strong> Cẩn thận với vật liệu chất lượng cao</p>
-              <p><strong>Bảo hiểm:</strong> Hỗ trợ tuyên bố giá trị nếu hàng bị hư</p>
-              <p class="info">Sản phẩm được bảo vệ tối đa trong quá trình vận chuyển.</p>
+            
+            <div class="shipping-info-item full-width-item">
+              <h3>📦 Quy chuẩn chống sốc & Bảo hiểm mô hình</h3>
+              <p class="shipping-meta"><strong>Đóng gói:</strong> 100% bọc màng khí chống sốc xốp bong bóng dày 3 lớp, cố định trong thùng carton cứng.</p>
+              <p class="shipping-meta"><strong>Bảo hiểm:</strong> Đơn hàng được đóng bảo hiểm hàng hóa có giá trị. Đổi mới lập tức nếu xước xát, lỗi do vận chuyển.</p>
             </div>
           </div>
 
-          <div class="important-note">
-            <h3> Lưu ý quan trọng</h3>
-            <ul>
-              <li>Vui lòng kiểm tra hàng khi nhận, nếu có vấn đề hãy liên hệ ngay</li>
-              <li>Chúng tôi không chịu trách nhiệm nếu bạn từ chối hàng quá 24h sau khi nhận</li>
-              <li>Các đơn hàng có thể bị trì hoãn do thời tiết xấu hoặc sự cố bất ngờ</li>
+          <div class="important-notice-block">
+            <h3>⚠️ Lưu ý quan trọng khi nhận sản phẩm</h3>
+            <ul class="notice-list">
+              <li>Vui lòng quay lại Video Unboxing mở hộp khi nhận hàng để làm căn cứ xử lý khiếu nại nhanh chóng nhất nếu xảy ra sự cố.</li>
+              <li>Mọi yêu cầu đổi trả/hoàn tiền do lỗi bên ngoài cần được phản hồi lại tổng đài CSKH trong vòng 24 giờ kể từ khi ký nhận hàng thành công.</li>
+              <li>Thời gian nhận hàng thực tế có thể dao động nhẹ tùy thuộc vào tình hình thời tiết đỉnh điểm hoặc các dịp lễ lớn của đơn vị vận chuyển.</li>
             </ul>
           </div>
         </div>
       </div>
-    </div>
+
+    </main>
   </div>
 </template>
 
@@ -140,24 +151,24 @@ const guideTabs = [
 ]
 
 onMounted(() => {
-  const section = route.query.section || 'how-to-buy'
+  const section = route?.query?.section || 'how-to-buy'
   activeSection.value = section
 })
 
 const getSectionTitle = () => {
   const titles = {
-    'how-to-buy': 'Cách Mua Hàng',
-    'payment': 'Phương Thức Thanh Toán',
-    'shipping': 'Thông Tin Giao Hàng'
+    'how-to-buy': 'Hướng Dẫn Mua Hàng',
+    'payment': 'Hệ Thống Thanh Toán',
+    'shipping': 'Quy Trình Giao Nhận Hàng'
   }
-  return titles[activeSection.value] || 'Hướng Dẫn'
+  return titles[activeSection.value] || 'Trung Tâm Hướng Dẫn'
 }
 
 const getSectionDescription = () => {
   const descriptions = {
-    'how-to-buy': 'Hướng dẫn chi tiết các bước mua hàng tại shop',
-    'payment': 'Nhiều phương thức thanh toán tiện lợi cho bạn',
-    'shipping': 'Thông tin vận chuyển và đóng gói sản phẩm'
+    'how-to-buy': 'Chi tiết quy trình đặt hàng mô hình Anime/Manga chính hãng an tâm tại cửa hàng.',
+    'payment': 'Hỗ trợ đa dạng giải pháp giao dịch thông minh tích hợp công nghệ bảo mật dữ liệu an toàn.',
+    'shipping': 'Thông tin chi tiết về chính sách vận chuyển toàn quốc và tiêu chuẩn bảo vệ hộp sản phẩm.'
   }
   return descriptions[activeSection.value] || ''
 }
@@ -165,217 +176,359 @@ const getSectionDescription = () => {
 
 <style scoped>
 .guide-page {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 40px 24px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #334155;
+  line-height: 1.6;
 }
 
-.page-header {
+/* ==========================================================================
+   HEADER BANNER (Màu gradient tím - xanh theo ảnh thiết kế)
+   ========================================================================== */
+.page-header-banner {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+  border-radius: 24px; /* Bo góc lớn mềm mại */
+  padding: 64px 40px;
   text-align: center;
+  margin-bottom: 40px;
+  box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.2);
+}
+
+.banner-content {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.banner-title {
+  color: #ffffff;
+  font-size: 40px;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.banner-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   NAVIGATION TABS (Hệ thanh điều hướng dạng viên thuốc giống ảnh)
+   ========================================================================== */
+.guide-tabs-container {
+  display: flex;
+  justify-content: center;
   margin-bottom: 40px;
 }
 
-.page-header h1 {
-  font-size: 36px;
-  color: #2c3e50;
-  margin-bottom: 10px;
-}
-
-.page-header p {
-  font-size: 16px;
-  color: #7f8c8d;
-}
-
-/* Tabs */
-.guide-tabs {
+.tabs-pill-wrapper {
   display: flex;
-  gap: 10px;
-  margin-bottom: 30px;
-  border-bottom: 2px solid #e9ecef;
-  overflow-x: auto;
+  background: #ffffff;
+  padding: 6px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  border: 1px solid #f1f5f9;
 }
 
-.tab {
-  padding: 12px 24px;
+.tab-pill-btn {
+  padding: 12px 32px;
   background: transparent;
   border: none;
-  color: #7f8c8d;
+  color: #475569;
   font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase; /* Chữ in hoa dạng nhãn điều hướng */
+  letter-spacing: 0.5px;
   cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.tab:hover {
-  color: #667eea;
-}
-
-.tab.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
-}
-
-.section {
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.guide-content {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
-.guide-section {
-  background: white;
   border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.guide-section h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
+.tab-pill-btn:hover {
+  color: #7c3aed;
+}
+
+/* Trạng thái Tab Active: Nền gradient tím xanh nổi bật */
+.tab-pill-btn.active {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+}
+
+/* ==========================================================================
+   MAIN CONTENT COMPONENT UPGRADES
+   ========================================================================== */
+.section-pane {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Container bọc bài viết cao cấp */
+.text-article-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.section-inner-title {
   font-size: 24px;
+  color: #0f172a;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 28px;
 }
 
+/* --- 1. CÁCH MUA: Nâng cấp danh sách bước tiến trình (Step list) --- */
 .guide-steps {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
-.step {
+.step-card {
   display: flex;
   align-items: flex-start;
-  gap: 15px;
+  gap: 20px;
+  padding: 24px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+.step-card:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
 }
 
-.step-number {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+.step-number-badge {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 15px;
   flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
 }
 
 .step-content h3 {
-  color: #2c3e50;
-  margin-bottom: 5px;
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #0f172a;
+  font-weight: 700;
 }
 
 .step-content p {
-  color: #7f8c8d;
-  line-height: 1.5;
+  margin: 0;
+  font-size: 14.5px;
+  color: #475569;
+  line-height: 1.6;
 }
 
-.payment-methods {
+/* --- 2. THANH TOÁN: Nâng cấp lưới hiển thị (Grid list) --- */
+.payment-methods-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
 }
 
-.payment-method {
+.payment-method-item {
   text-align: center;
-  padding: 20px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  padding: 32px 24px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.payment-method-item:hover {
+  background: #ffffff;
+  border-color: #7c3aed;
+  box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.08);
+  transform: translateY(-4px);
 }
 
-.payment-method:hover {
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+.payment-icon-wrapper {
+  font-size: 36px;
+  background: #ffffff;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
 }
 
-.payment-icon {
-  font-size: 32px;
-  margin-bottom: 10px;
+.payment-method-item h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 10px 0;
 }
 
-.payment-method h3 {
-  color: #2c3e50;
-  margin-bottom: 5px;
-}
-
-.payment-method p {
-  color: #7f8c8d;
-  font-size: 14px;
-  margin: 5px 0;
-}
-
-.payment-method .info {
-  font-size: 13px;
-  font-style: italic;
-  color: #95a5a6;
-}
-
-.shipping-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.shipping-item {
-  padding: 20px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.shipping-item:hover {
-  border-color: #667eea;
-  background: #f8f9fa;
-}
-
-.shipping-item h3 {
-  color: #2c3e50;
-  margin-bottom: 10px;
-}
-
-.shipping-item p {
-  color: #7f8c8d;
-  margin-bottom: 5px;
+.payment-method-item p {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0 0 16px 0;
   line-height: 1.5;
+  flex-grow: 1;
 }
 
-.shipping-item .info {
-  font-size: 13px;
-  font-style: italic;
-  color: #95a5a6;
+.info-badge {
+  font-size: 12px;
+  color: #7c3aed;
+  background: #f5f3ff;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-weight: 500;
 }
 
-.important-note {
-  background: #fff3cd;
-  border-left: 4px solid #ffc107;
-  padding: 20px;
-  border-radius: 8px;
-  margin-top: 20px;
+/* --- 3. GIAO HÀNG: Khối vận chuyển & Note cảnh báo --- */
+.shipping-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
-.important-note h3 {
-  color: #856404;
-  margin-bottom: 15px;
+.shipping-info-item {
+  padding: 24px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+.shipping-info-item:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
 }
 
-.important-note ul {
+.shipping-info-item h3 {
+  font-size: 18px;
+  color: #0f172a;
+  margin: 0 0 14px 0;
+  font-weight: 700;
+}
+
+.shipping-meta {
+  font-size: 14px;
+  color: #334155;
+  margin: 0 0 8px 0;
+}
+.shipping-meta strong {
+  color: #0f172a;
+}
+
+.info-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 12px 0 0 0;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.full-width-item {
+  grid-column: 1 / -1;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.full-width-item h3 {
+  color: #16a34a;
+}
+
+/* Khối Cảnh báo/Lưu ý nâng cấp trực quan */
+.important-notice-block {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 5px solid #f59e0b;
+  padding: 28px;
+  border-radius: 12px;
+  margin-top: 32px;
+}
+
+.important-notice-block h3 {
+  color: #b45309;
+  margin: 0 0 14px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.notice-list {
   margin: 0;
   padding-left: 20px;
 }
 
-.important-note li {
-  color: #856404;
-  margin-bottom: 8px;
+.notice-list li {
+  color: #78350f;
+  font-size: 14px;
+  margin-bottom: 10px;
   line-height: 1.6;
+}
+.notice-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUTS (Tối ưu thiết bị di động mượt mà)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .page-header-banner {
+    padding: 40px 20px;
+    border-radius: 16px;
+  }
+  .banner-title { font-size: 28px; }
+  .banner-subtitle { font-size: 14px; }
+  
+  .guide-tabs-container {
+    padding: 0 4px;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+  .tabs-pill-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .tab-pill-btn {
+    padding: 10px 22px;
+    font-size: 13px;
+  }
+
+  .text-article-card {
+    padding: 24px;
+  }
+  
+  .shipping-info-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .step-card {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 </style>

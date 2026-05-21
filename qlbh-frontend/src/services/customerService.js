@@ -1,23 +1,23 @@
-import axios from "axios"
+import axiosInstance from "../api/axiosInstance"
 
-const API = "http://127.0.0.1:8000/api/customers"
+const API = "/api/customers"
 
 export const getCustomers = (search = "", page = 1) => {
-  return axios.get(`${API}?search=${search}&page=${page}`)
+  return axiosInstance.get(`${API}?search=${search}&page=${page}`)
 }
 
 export const getCustomer = (id) => {
-  return axios.get(`${API}/${id}`)
+  return axiosInstance.get(`${API}/${id}`)
 }
 
 export const createCustomer = (data) => {
-  return axios.post(API, data)
+  return axiosInstance.post(API, data)
 }
 
 export const updateCustomer = (id, data) => {
-  return axios.put(`${API}/${id}`, data)
+  return axiosInstance.put(`${API}/${id}`, data)
 }
 
 export const deleteCustomer = (id) => {
-  return axios.delete(`${API}/${id}`)
+  return axiosInstance.delete(`${API}/${id}`)
 }

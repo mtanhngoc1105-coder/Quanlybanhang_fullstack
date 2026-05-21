@@ -8,6 +8,10 @@ import MainLayout from "../layouts/MainLayout.vue"
 // Public pages
 import Home from "../pages/Home.vue"
 import ProductsPublic from "../pages/public/ProductsPublic.vue"
+import ProductDetailPublic from "../pages/public/ProductDetail.vue"
+import Cart from "../pages/Cart.vue"
+import Checkout from "../pages/Checkout.vue"
+import OrderSuccess from "../pages/OrderSuccess.vue"
 import Contact from "../pages/Contact.vue"
 import Login from "../pages/Login.vue"
 import NotFound from "../pages/NotFound.vue"
@@ -93,20 +97,24 @@ import CategoryDetail from "../pages/categories/CategoryDetail.vue"
 const routes = [
   // PUBLIC ROUTES
   {
-    path: "/",
-    component: MainLayout,
-    children: [
-      { path: "", component: Home },
-      { path: "shop", component: ProductsPublic },
-      { path: "shop/category/:categoryId", component: ProductsPublic },
-      { path: "contact", component: Contact },
-      { path: "about", component: About },
-      { path: "promotions", component: Promotions },
-      { path: "guide", component: Guide },
-      { path: "news", component: News },
-      { path: "recruitment", component: Recruitment },
-    ]
-  },
+  path: "/",
+  component: MainLayout,
+  children: [
+    { path: "", component: Home },
+    { path: "shop", component: ProductsPublic },
+    { path: "products/:id", component: ProductDetailPublic },
+    { path: "cart", component: Cart },
+    { path: "checkout", component: Checkout },
+    { path: "order-success/:id", component: OrderSuccess },
+    { path: "category/:slug", component: ProductsPublic }, // FIXED
+    { path: "contact", component: Contact },
+    { path: "about", component: About },
+    { path: "promotions", component: Promotions }, // OK
+    { path: "guide", component: Guide },
+    { path: "news", component: News },
+    { path: "recruitment", component: Recruitment },
+  ]
+},
 
   // ADMIN ROUTES
   {

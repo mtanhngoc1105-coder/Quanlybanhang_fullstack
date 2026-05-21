@@ -1,24 +1,24 @@
 // src/api/orderApi.js
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
-const API_URL = "http://127.0.0.1:8000/api/orders";
+const API_URL = "/api/orders";
 
 export const getOrders = (search = "", page = 1) => {
-  return axios.get(`${API_URL}?search=${search}&page=${page}`);
+  return axiosInstance.get(`${API_URL}?search=${search}&page=${page}`);
 };
 
 export const getOrder = (id) => {
-  return axios.get(`${API_URL}/${id}`);
+  return axiosInstance.get(`${API_URL}/${id}`);
 };
 
 export const createOrder = (data) => {
-  return axios.post(API_URL, data);
+  return axiosInstance.post(API_URL, data);
 };
 
 export const updateOrder = (id, data) => {
-  return axios.put(`${API_URL}/${id}`, data);
+  return axiosInstance.put(`${API_URL}/${id}`, data);
 };
 
 export const deleteOrder = (id) => {
-  return axios.delete(`${API_URL}/${id}`);
+  return axiosInstance.delete(`${API_URL}/${id}`);
 };
