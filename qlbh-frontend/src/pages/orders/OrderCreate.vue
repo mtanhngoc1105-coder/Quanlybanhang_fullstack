@@ -109,10 +109,13 @@ export default {
         getCustomers(),
         getPostOffices()
       ]);
-      this.customers = cusRes.data.data || cusRes.data;
-      this.postOffices = poRes.data.data || poRes.data;
+
+      this.customers = cusRes.data.data?.data || cusRes.data.data || cusRes.data || [];
+      this.postOffices = poRes.data.data?.data || poRes.data.data || poRes.data || [];
     } catch (err) {
       console.error('Lỗi tải dữ liệu:', err);
+      this.customers = [];
+      this.postOffices = [];
     }
   },
   methods: {

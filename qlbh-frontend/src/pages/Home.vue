@@ -79,11 +79,39 @@
         <strong>100% chính hãng</strong> có bảo hành.
       </div>
     </section>
+
+    <div class="chat-float">
+      <button class="chat-toggle" @click="toggleChat">💬</button>
+
+      <div v-show="chatOpen" class="chat-box">
+        <div class="chat-header">Anime Assistant 🤖</div>
+
+        <div class="chat-body">
+          <div
+            v-for="(message, index) in chatMessages"
+            :key="index"
+            :class="['message', message.role]"
+          >
+            {{ message.text }}
+          </div>
+        </div>
+
+        <div class="chat-input">
+          <input
+            type="text"
+            v-model="userInput"
+            placeholder="Hỏi về mô hình, giá, One Piece..."
+            @keydown.enter.prevent="sendMessage"
+          />
+          <button type="button" @click="sendMessage">Gửi</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue"
+import { ref, onMounted, onUnmounted, nextTick } from "vue"
 import { useRouter } from "vue-router"
 import { getProducts } from "../services/productService"
 import { addToCartService } from "../services/cartService.js"
@@ -101,6 +129,57 @@ const slides = ref([
 ])
 const currentSlide = ref(0)
 const slideTimer = ref(null)
+const chatOpen = ref(false)
+const userInput = ref("")
+const chatMessages = ref([
+  {
+    role: "bot",
+    text: "Xin chào 👋 tôi có thể tư vấn mô hình anime cho bạn!"
+  }
+])
+
+const toggleChat = () => {
+  chatOpen.value = !chatOpen.value
+  if (chatOpen.value) {
+    nextTick(() => {
+      const input = document.querySelector('.chat-input input')
+      input?.focus()
+    })
+  }
+}
+
+const addMessage = (role, text) => {
+  chatMessages.value.push({ role, text })
+  nextTick(() => {
+    const el = document.querySelector('.chat-body')
+    if (el) el.scrollTop = el.scrollHeight
+  })
+}
+
+const sendMessage = () => {
+  const text = userInput.value.trim()
+  if (!text) return
+
+  addMessage('user', text)
+  userInput.value = ''
+
+  let reply = 'Xin lỗi tôi chưa hiểu 😅 Hãy thử hỏi về Naruto, One Piece, Gundam hoặc giá sản phẩm.'
+  const lower = text.toLowerCase()
+
+  if (lower.includes('naruto') || lower.includes('sasuke') || lower.includes('kakashi')) {
+    reply = 'Shop có mô hình Naruto, Sasuke, Kakashi và phụ kiện ninja cực ngầu 🔥'
+  } else if (lower.includes('giá') || lower.includes('giá cả') || lower.includes('tốn')) {
+    reply = 'Mô hình có giá từ 200k đến 2 triệu tùy mẫu, mình giúp bạn chọn ngay nhé.'
+  } else if (lower.includes('one piece') || lower.includes('luffy') || lower.includes('zoro') || lower.includes('sanji')) {
+    reply = 'Hiện có Luffy Gear 5, Zoro, Sanji và nhiều siêu phẩm One Piece 😆'
+  } else if (lower.includes('gundam') || lower.includes('mg') || lower.includes('rg')) {
+    reply = 'Có nhiều mẫu Gundam MG, RG, phù hợp bộ sưu tập và quà tặng.'
+  } else if (lower.includes('tư vấn') || lower.includes('mô hình') || lower.includes('anime')) {
+    reply = 'Bạn đang tìm mô hình theo nhân vật hay theo chủ đề? Mình có thể tư vấn mẫu hot ngay.'
+  }
+
+  setTimeout(() => addMessage('bot', reply), 500)
+}
 
 const startSlideShow = () => {
   stopSlideShow()
@@ -420,6 +499,115 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   transition: all 0.3s ease;
+}
+
+.chat-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.chat-toggle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background: #ff4d6d;
+  color: white;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 30px rgba(255, 77, 109, 0.28);
+}
+
+.chat-box {
+  width: 320px;
+  max-width: min(92vw, 320px);
+  max-height: 520px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-header {
+  background: #ff4d6d;
+  color: white;
+  padding: 16px 18px;
+  font-weight: 700;
+}
+
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: linear-gradient(180deg, #fff 0%, #f9f5f8 100%);
+}
+
+.message {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  max-width: 86%;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.message.bot {
+  background: #f1f1f1;
+  color: #1f1f1f;
+  align-self: flex-start;
+}
+
+.message.user {
+  background: #ffd6de;
+  color: #1b1b18;
+  text-align: right;
+  align-self: flex-end;
+}
+
+.chat-input {
+  display: flex;
+  border-top: 1px solid #eee;
+  background: #fff;
+}
+
+.chat-input input {
+  flex: 1;
+  border: none;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1b1b18;
+  outline: none;
+}
+
+.chat-input input::placeholder {
+  color: #a19f9f;
+}
+
+.chat-input button {
+  border: none;
+  background: #ff4d6d;
+  color: white;
+  padding: 0 18px;
+  font-weight: 700;
+}
+
+.chat-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
 }
 
 .info-card:hover {

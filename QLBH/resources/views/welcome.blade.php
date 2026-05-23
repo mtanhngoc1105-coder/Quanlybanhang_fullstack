@@ -273,5 +273,194 @@
         @if (Route::has('login'))
             <div class="h-14.5 hidden lg:block"></div>
         @endif
+
+        <div id="chat-toggle">💬</div>
+
+        <div id="chat-box">
+            <div class="chat-header">
+                Anime Assistant 🤖
+            </div>
+
+            <div id="chat-messages">
+                <div class="bot">
+                    Xin chào 👋 tôi có thể tư vấn mô hình anime cho bạn!
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Hỏi về mô hình, giá, One Piece...">
+                <button type="button" onclick="sendMessage()">Gửi</button>
+            </div>
+        </div>
+
+        <style>
+            #chat-toggle{
+                position:fixed;
+                bottom:20px;
+                right:20px;
+                width:60px;
+                height:60px;
+                border-radius:50%;
+                background:#ff4d6d;
+                color:white;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:28px;
+                cursor:pointer;
+                z-index:999;
+                box-shadow:0 14px 30px rgba(255,77,109,.28);
+            }
+
+            #chat-box{
+                position:fixed;
+                right:20px;
+                bottom:90px;
+                width:320px;
+                max-width:calc(100vw - 40px);
+                height:450px;
+                background:white;
+                border-radius:24px;
+                box-shadow:0 20px 40px rgba(0,0,0,0.18);
+                display:none;
+                flex-direction:column;
+                overflow:hidden;
+                z-index:999;
+                font-family:'Instrument Sans',ui-sans-serif,system-ui,sans-serif;
+            }
+
+            .chat-header{
+                background:#ff4d6d;
+                color:white;
+                padding:16px 18px;
+                font-weight:700;
+                letter-spacing:.01em;
+                box-shadow:0 8px 20px rgba(255,77,109,.18);
+            }
+
+            #chat-messages{
+                flex:1;
+                padding:16px;
+                overflow-y:auto;
+                background:linear-gradient(180deg, #fff 0%, #f9f5f8 100%);
+            }
+
+            .bot,.user{
+                margin-bottom:12px;
+                padding:12px 14px;
+                border-radius:16px;
+                line-height:1.5;
+                max-width:85%;
+                word-break:break-word;
+            }
+
+            .bot{
+                background:#f1f1f1;
+                color:#1f1f1f;
+                align-self:flex-start;
+            }
+
+            .user{
+                background:#ffd6de;
+                color:#1b1b18;
+                text-align:right;
+                align-self:flex-end;
+            }
+
+            .chat-input{
+                display:flex;
+                border-top:1px solid #eee;
+                background:#fff;
+            }
+
+            .chat-input input{
+                flex:1;
+                border:none;
+                padding:14px 16px;
+                font-size:14px;
+                color:#1b1b18;
+                outline:none;
+                background:transparent;
+            }
+
+            .chat-input input::placeholder{
+                color:#a19f9f;
+            }
+
+            .chat-input button{
+                border:none;
+                background:#ff4d6d;
+                color:white;
+                padding:0 20px;
+                cursor:pointer;
+                font-weight:700;
+                letter-spacing:.01em;
+            }
+
+            #chat-messages::-webkit-scrollbar{
+                width:8px;
+            }
+
+            #chat-messages::-webkit-scrollbar-thumb{
+                background:rgba(0,0,0,0.12);
+                border-radius:999px;
+            }
+        </style>
+
+        <script>
+            const toggle = document.getElementById("chat-toggle");
+            const box = document.getElementById("chat-box");
+            const messages = document.getElementById("chat-messages");
+            const input = document.getElementById("user-input");
+
+            toggle.onclick = () => {
+                box.style.display = box.style.display === "flex" ? "none" : "flex";
+                if (box.style.display === "flex") {
+                    input.focus();
+                }
+            };
+
+            function addMessage(role, text) {
+                const message = document.createElement('div');
+                message.className = role;
+                message.textContent = text;
+                messages.appendChild(message);
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            function sendMessage() {
+                const text = input.value.trim();
+                if (text === "") return;
+
+                addMessage('user', text);
+                input.value = '';
+
+                let reply = "Xin lỗi tôi chưa hiểu 😅 Hãy thử hỏi lại với tên nhân vật hoặc giá sản phẩm.";
+                const lower = text.toLowerCase();
+
+                if (lower.includes('naruto') || lower.includes('sasuke') || lower.includes('kakashi')) {
+                    reply = "Shop có mô hình Naruto, Sasuke, Kakashi và các phụ kiện ninja siêu ngầu 🔥";
+                } else if (lower.includes('giá') || lower.includes('giá cả') || lower.includes('tốn')) {
+                    reply = "Mô hình có giá từ 200k đến 2 triệu tùy mẫu, mình có thể gửi link mẫu nào bạn cần.";
+                } else if (lower.includes('one piece') || lower.includes('luffy') || lower.includes('zoro') || lower.includes('sanji')) {
+                    reply = "Hiện có Luffy Gear 5, Zoro, Sanji, cùng nhiều anh em băng Mũ Rơm 😆";
+                } else if (lower.includes('gundam') || lower.includes('mg') || lower.includes('rg')) {
+                    reply = "Có nhiều mẫu Gundam MG, RG, cùng lựa chọn đẹp cho bộ sưu tập của bạn 🤖";
+                } else if (lower.includes('tư vấn') || lower.includes('tư vấn mô hình') || lower.includes('mô hình')) {
+                    reply = "Mình gợi ý bạn chọn mẫu thịnh hành nhất hoặc nhân vật bạn yêu thích, ví dụ Naruto, One Piece, hay Gundam.";
+                }
+
+                setTimeout(() => {
+                    addMessage('bot', reply);
+                }, 500);
+            }
+
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    sendMessage();
+                }
+            });
+        </script>
     </body>
 </html>

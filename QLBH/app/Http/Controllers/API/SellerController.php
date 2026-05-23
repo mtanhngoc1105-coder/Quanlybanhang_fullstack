@@ -4,15 +4,16 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Seller;
 use App\Http\Requests\SellerRequest;
+use Illuminate\Http\Request;
 
 class SellerController
 {
     // =====================================
     // 1. Danh sách Seller (có search + paginate)
     // =====================================
-    public function index()
+    public function index(Request $request)
     {
-        $search = request()->input('search');
+        $search = $request->input('search');
 
         $query = Seller::query();
 
@@ -22,7 +23,11 @@ class SellerController
         }
 
         // Trả về danh sách Seller với phân trang
-        return response()->json($query->paginate(10));
+        return response()->json([
+            'status' => true,
+            'message' => 'Danh sách người bán',
+            'data' => $query->paginate(10)
+        ]);
     }
 
     // =====================================
