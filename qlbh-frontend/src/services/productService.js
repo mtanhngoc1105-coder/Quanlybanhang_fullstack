@@ -8,6 +8,7 @@ export const getProducts = (params = {}) => {
   if (params.search) queryParams.append('search', params.search)
   if (params.category_id) queryParams.append('category_id', params.category_id)
   if (params.page) queryParams.append('page', params.page)
+  if (params.per_page) queryParams.append('per_page', params.per_page)
   
   const queryString = queryParams.toString()
   return axiosInstance.get(`${API}${queryString ? '?' + queryString : ''}`)

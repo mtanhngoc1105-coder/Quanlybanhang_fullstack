@@ -765,6 +765,26 @@ onUnmounted(() => {
   color: #cfd8ec;
 }
 
+/* Pagination: allow wrapping and prevent horizontal overflow */
+.pagination {
+  display: flex;
+  flex-wrap: wrap !important;
+  gap: 8px;
+  justify-content: center;
+  padding-left: 0;
+  margin: 20px 0;
+}
+.pagination li {
+  flex: 0 0 auto;
+  margin: 0 4px;
+  white-space: nowrap;
+}
+@media (max-width: 768px) {
+  .pagination {
+    justify-content: flex-start;
+  }
+}
+
 @media (max-width: 1024px) {
   .top-header-inner,
   .primary-header-inner,

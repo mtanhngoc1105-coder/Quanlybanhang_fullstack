@@ -156,19 +156,40 @@
       </table>
     </div>
 
-    <nav v-if="totalPages > 1" class="mt-4">
-      <ul class="pagination justify-content-center">
-        <li class="page-item" :class="{ disabled: currentPage === 1 }">
-          <a class="page-link" @click.prevent="goToPage(currentPage - 1)" href="#">Trước</a>
-        </li>
-        <li v-for="page in visiblePages" :key="page" class="page-item" :class="{ active: page === currentPage }">
-          <a class="page-link" @click.prevent="goToPage(page)" href="#">{{ page }}</a>
-        </li>
-        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <a class="page-link" @click.prevent="goToPage(currentPage + 1)" href="#">Sau</a>
-        </li>
-      </ul>
-    </nav>
+    <div v-if="totalPages > 1" class="d-flex align-items-center justify-content-between mt-4 pagination-container">
+      <div class="pagination-left">
+        <small class="text-muted">Hiển thị
+          <select v-model.number="itemsPerPage" @change="onPerPageChange" class="form-select form-select-sm d-inline-block ms-2" style="width:100px;">
+            <option v-for="opt in perPageOptions" :key="opt" :value="opt">{{ opt }}</option>
+          </select>
+          / trang
+        </small>
+        <div class="ms-3 text-muted small">Hiển thị từ {{ startItem }} đến {{ endItem }} trong tổng số {{ pagination.total }}</div>
+      </div>
+
+      <nav class="pagination-right">
+        <ul class="pagination mb-0">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <a class="page-link" href="#" @click.prevent="goToFirst">«</a>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <a class="page-link" href="#" @click.prevent="goToPrev">‹ Trước</a>
+          </li>
+
+          <li v-for="(page, idx) in visiblePages" :key="'pg-'+idx+ '-' + page" :class="['page-item', { active: page === currentPage, disabled: page === '...' }]">
+            <span v-if="page === '...'" class="page-link">…</span>
+            <a v-else class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
+          </li>
+
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <a class="page-link" href="#" @click.prevent="goToNext">Sau ›</a>
+          </li>
+          <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+            <a class="page-link" href="#" @click.prevent="goToLast">»</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
   </div>
 </template>
 
@@ -213,7 +234,8 @@ const loadProducts = async (page = 1) => {
     const res = await getProducts({
       search: searchQuery.value.trim(),
       category_id: selectedCategory.value,
-      page
+      page,
+      per_page: itemsPerPage.value
     })
 
     const data = res.data?.data || {}
@@ -248,20 +270,74 @@ const onFilterChange = async () => {
 
 const totalPages = computed(() => pagination.value.last_page || 1)
 
+const perPageOptions = [10,25,50,100]
+const itemsPerPage = ref(10)
+
 const visiblePages = computed(() => {
-  const pages = []
-  for (let i = 1; i <= totalPages.value; i++) {
-    pages.push(i)
+  const total = totalPages.value
+  const current = currentPage.value
+  const delta = 1 // neighbors on each side
+  const range = []
+
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) range.push(i)
+    return range
   }
-  return pages
+
+  const left = Math.max(2, current - delta)
+  const right = Math.min(total - 1, current + delta)
+
+  range.push(1)
+
+  if (left > 2) range.push('...')
+
+  for (let i = left; i <= right; i++) range.push(i)
+
+  if (right < total - 1) range.push('...')
+
+  range.push(total)
+
+  return range
 })
 
 const paginatedProducts = computed(() => products.value)
 
+const startItem = computed(() => {
+  return pagination.value.total === 0 ? 0 : ((currentPage.value - 1) * itemsPerPage.value) + 1
+})
+
+const endItem = computed(() => {
+  return Math.min(pagination.value.total, currentPage.value * itemsPerPage.value)
+})
+
 const goToPage = async (page) => {
+  if (page === '...') return
   if (page < 1 || page > totalPages.value) return
   currentPage.value = page
   await loadProducts(page)
+}
+
+const goToFirst = () => {
+  if (currentPage.value === 1) return
+  goToPage(1)
+}
+
+const goToLast = () => {
+  if (currentPage.value === totalPages.value) return
+  goToPage(totalPages.value)
+}
+
+const goToPrev = () => {
+  if (currentPage.value > 1) goToPage(currentPage.value - 1)
+}
+
+const goToNext = () => {
+  if (currentPage.value < totalPages.value) goToPage(currentPage.value + 1)
+}
+
+const onPerPageChange = async () => {
+  currentPage.value = 1
+  await loadProducts(1)
 }
 
 const formatPrice = (price) => {
@@ -326,6 +402,48 @@ watch(() => route.query.category_id, (newCategory) => {
 
 .page-link {
   cursor: pointer;
+}
+
+/* Pagination UI tweaks */
+.pagination-container .pagination-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pagination-right .pagination {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.pagination-right .page-item .page-link {
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+.pagination-right .page-item.active .page-link {
+  background-color: #1e70af;
+  color: #fff;
+  border-color: #1e70af;
+}
+.pagination-right .page-item .page-link:hover {
+  background-color: #eef6fc;
+}
+.pagination-right .page-item.disabled .page-link {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .pagination-container {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .pagination-left {
+    justify-content: space-between;
+  }
+  .pagination-right {
+    justify-content: center;
+  }
 }
 
 /* ========================================

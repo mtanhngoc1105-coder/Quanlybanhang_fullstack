@@ -148,8 +148,9 @@
         <li class="page-item" :class="{ disabled: currentPage === 1 }">
           <a class="page-link" @click.prevent="goToPage(currentPage - 1)" href="#">Trước</a>
         </li>
-        <li v-for="page in visiblePages" :key="page" class="page-item" :class="{ active: page === currentPage }">
-          <a class="page-link" @click.prevent="goToPage(page)" href="#">{{ page }}</a>
+        <li v-for="page in visiblePages" :key="page" :class="['page-item', { active: page === currentPage, disabled: page === '...' }]">
+          <span v-if="page === '...'" class="page-link">…</span>
+          <a v-else class="page-link" @click.prevent="goToPage(page)" href="#">{{ page }}</a>
         </li>
         <li class="page-item" :class="{ disabled: currentPage === totalPages }">
           <a class="page-link" @click.prevent="goToPage(currentPage + 1)" href="#">Sau</a>
@@ -236,10 +237,25 @@ const onFilterChange = async () => {
 const totalPages = computed(() => pagination.value.last_page || 1)
 
 const visiblePages = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
   const pages = []
-  for (let i = 1; i <= totalPages.value; i++) {
-    pages.push(i)
+
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1)
   }
+
+  if (current <= 4) {
+    pages.push(1, 2, 3, 4, 5, '...', total)
+    return pages
+  }
+
+  if (current >= total - 3) {
+    pages.push(1, '...', total - 4, total - 3, total - 2, total - 1, total)
+    return pages
+  }
+
+  pages.push(1, '...', current - 1, current, current + 1, '...', total)
   return pages
 })
 

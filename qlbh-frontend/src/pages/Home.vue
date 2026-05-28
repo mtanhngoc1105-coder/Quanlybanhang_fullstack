@@ -81,10 +81,18 @@
     </section>
 
     <div class="chat-float">
-      <button class="chat-toggle" @click="toggleChat">💬</button>
+      <button class="chat-toggle" @click="toggleChat" aria-label="Mở chat hỗ trợ">
+        <span>💬</span>
+      </button>
 
-      <div v-show="chatOpen" class="chat-box">
-        <div class="chat-header">Anime Assistant 🤖</div>
+      <div v-show="chatOpen" class="chat-box" role="dialog" aria-label="Chat hỗ trợ khách hàng">
+        <div class="chat-header">
+          <div>
+            <strong>Anime Assistant</strong>
+            <p>Tư vấn sản phẩm, giá và quà tặng anime.</p>
+          </div>
+          <button class="chat-close" @click="toggleChat" aria-label="Đóng chat">✕</button>
+        </div>
 
         <div class="chat-body">
           <div
@@ -92,18 +100,36 @@
             :key="index"
             :class="['message', message.role]"
           >
-            {{ message.text }}
+            <div class="message-text">{{ message.text }}</div>
           </div>
+          <div v-if="isTyping" class="typing-indicator">
+            <span></span><span></span><span></span>
+            <span>Anime Assistant đang trả lời...</span>
+          </div>
+        </div>
+
+        <div class="chat-suggestions">
+          <button
+            v-for="(reply, index) in quickReplies"
+            :key="index"
+            type="button"
+            @click="sendQuickReply(reply)"
+          >
+            {{ reply }}
+          </button>
         </div>
 
         <div class="chat-input">
           <input
             type="text"
             v-model="userInput"
-            placeholder="Hỏi về mô hình, giá, One Piece..."
+            placeholder="Nhập câu hỏi của bạn..."
             @keydown.enter.prevent="sendMessage"
+            aria-label="Nhập tin nhắn chat"
           />
-          <button type="button" @click="sendMessage">Gửi</button>
+          <button type="button" @click="sendMessage" aria-label="Gửi tin nhắn">
+            Gửi
+          </button>
         </div>
       </div>
     </div>
@@ -131,10 +157,17 @@ const currentSlide = ref(0)
 const slideTimer = ref(null)
 const chatOpen = ref(false)
 const userInput = ref("")
+const isTyping = ref(false)
+const quickReplies = ref([
+  'Tư vấn mô hình nổi bật',
+  'Hỏi giá sản phẩm',
+  'Mẫu One Piece hot',
+  'Thời gian giao hàng'
+])
 const chatMessages = ref([
   {
     role: "bot",
-    text: "Xin chào 👋 tôi có thể tư vấn mô hình anime cho bạn!"
+    text: "Xin chào 👋 tôi có thể tư vấn mô hình anime, đánh giá sản phẩm và ưu đãi hiện có."
   }
 ])
 
@@ -156,15 +189,21 @@ const addMessage = (role, text) => {
   })
 }
 
+const sendQuickReply = (text) => {
+  userInput.value = text
+  sendMessage()
+}
+
 const sendMessage = () => {
   const text = userInput.value.trim()
   if (!text) return
 
   addMessage('user', text)
   userInput.value = ''
+  isTyping.value = true
 
-  let reply = 'Xin lỗi tôi chưa hiểu 😅 Hãy thử hỏi về Naruto, One Piece, Gundam hoặc giá sản phẩm.'
   const lower = text.toLowerCase()
+  let reply = 'Xin lỗi tôi chưa hiểu 😅 Hãy thử hỏi về Naruto, One Piece, Gundam hoặc giá sản phẩm.'
 
   if (lower.includes('naruto') || lower.includes('sasuke') || lower.includes('kakashi')) {
     reply = 'Shop có mô hình Naruto, Sasuke, Kakashi và phụ kiện ninja cực ngầu 🔥'
@@ -178,7 +217,10 @@ const sendMessage = () => {
     reply = 'Bạn đang tìm mô hình theo nhân vật hay theo chủ đề? Mình có thể tư vấn mẫu hot ngay.'
   }
 
-  setTimeout(() => addMessage('bot', reply), 500)
+  setTimeout(() => {
+    addMessage('bot', reply)
+    isTyping.value = false
+  }, 650)
 }
 
 const startSlideShow = () => {
@@ -510,6 +552,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
+  font-family: inherit;
 }
 
 .chat-toggle {
@@ -517,7 +560,7 @@ onUnmounted(() => {
   height: 60px;
   border-radius: 50%;
   border: none;
-  background: #ff4d6d;
+  background: linear-gradient(135deg, #ff4d6d 0%, #ff7a92 100%);
   color: white;
   font-size: 28px;
   display: flex;
@@ -528,6 +571,7 @@ onUnmounted(() => {
 
 .chat-box {
   width: 320px;
+  min-width: 320px;
   max-width: min(92vw, 320px);
   max-height: 520px;
   background: white;
@@ -536,17 +580,50 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid rgba(113, 116, 217, 0.12);
 }
 
 .chat-header {
-  background: #ff4d6d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(135deg, #4f46e5 0%, #ec4899 100%);
   color: white;
-  padding: 16px 18px;
-  font-weight: 700;
+  padding: 18px 18px 16px;
+}
+
+.chat-header strong {
+  display: block;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+
+.chat-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+.chat-close {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-body {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
   padding: 16px;
   background: linear-gradient(180deg, #fff 0%, #f9f5f8 100%);
@@ -557,8 +634,11 @@ onUnmounted(() => {
   padding: 12px 14px;
   border-radius: 16px;
   max-width: 86%;
+  overflow-wrap: anywhere;
+  max-width: 86%;
   line-height: 1.5;
   word-break: break-word;
+  box-shadow: 0 8px 18px rgba(24, 40, 80, 0.05);
 }
 
 .message.bot {
@@ -574,31 +654,113 @@ onUnmounted(() => {
   align-self: flex-end;
 }
 
+.message-text {
+  white-space: pre-wrap;
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  width: fit-content;
+  box-shadow: 0 8px 18px rgba(24, 40, 80, 0.05);
+}
+
+.typing-indicator span:first-child,
+.typing-indicator span:nth-child(2),
+.typing-indicator span:nth-child(3) {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4f46e5;
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 18px 10px;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.chat-suggestions button {
+  flex: 1 1 auto;
+  min-width: 110px;
+  border: 1px solid rgba(79, 70, 229, 0.18);
+  background: rgba(79, 70, 229, 0.06);
+  color: #4338ca;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.chat-suggestions button:hover {
+  background: rgba(79, 70, 229, 0.14);
+  transform: translateY(-1px);
+}
+
 .chat-input {
   display: flex;
+  min-width: 0;
   border-top: 1px solid #eee;
   background: #fff;
 }
 
 .chat-input input {
   flex: 1;
+  min-width: 0;
   border: none;
   padding: 14px 16px;
   font-size: 14px;
   color: #1b1b18;
   outline: none;
+  background: #f8fafc;
+}
+
+.chat-input input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
 }
 
 .chat-input input::placeholder {
-  color: #a19f9f;
+  color: #9ca3af;
 }
 
 .chat-input button {
   border: none;
-  background: #ff4d6d;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #4f46e5 0%, #ec4899 100%);
   color: white;
   padding: 0 18px;
   font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-input button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(79, 70, 229, 0.18);
 }
 
 .chat-body::-webkit-scrollbar {
@@ -608,6 +770,10 @@ onUnmounted(() => {
 .chat-body::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.12);
   border-radius: 999px;
+}
+
+.chat-body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .info-card:hover {
