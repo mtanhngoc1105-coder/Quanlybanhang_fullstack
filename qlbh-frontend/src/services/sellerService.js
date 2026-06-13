@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/sellers"
+const API = "/sellers"
 
 export const getSellers = () => axiosInstance.get(API)
 export const getSeller = (id) => axiosInstance.get(`${API}/${id}`)

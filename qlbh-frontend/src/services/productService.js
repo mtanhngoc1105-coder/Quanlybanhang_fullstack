@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/products"
+const API = "/products"
 
 export const getProducts = (params = {}) => {
   const queryParams = new URLSearchParams()

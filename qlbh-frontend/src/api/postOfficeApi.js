@@ -1,7 +1,7 @@
 // src/api/postOfficeApi.js
 import axiosInstance from "./axiosInstance";
 
-const API_URL = "/api/postoffices";
+const API_URL = "/postoffices";
 
 export const getPostOffices = (search = "", page = 1) => {
   return axiosInstance.get(`${API_URL}?search=${search}&page=${page}`);

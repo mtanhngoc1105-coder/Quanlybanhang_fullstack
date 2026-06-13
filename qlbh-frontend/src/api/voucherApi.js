@@ -1,7 +1,7 @@
 // src/api/voucherApi.js
 import axiosInstance from "./axiosInstance";
 
-const API_URL = "/api/vouchers";
+const API_URL = "/vouchers";
 
 export const getVouchers = (search = "", page = 1) => {
   return axiosInstance.get(`${API_URL}?search=${search}&page=${page}`);

@@ -93,12 +93,8 @@ const loadData = async () => {
       
       try {
         const res = await getProducts(params)
-        const data = res.data?.data
-        products.value = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.data)
-            ? data.data
-            : []
+        const productsData = res.data?.data?.data || res.data?.data || []
+        products.value = Array.isArray(productsData) ? productsData : []
       } catch {
         // Nếu API fail, use mock data hoặc empty array
         products.value = []
@@ -109,12 +105,8 @@ const loadData = async () => {
       if (search.value) params.search = search.value
       
       const res = await getProducts(params)
-      const data = res.data?.data
-      products.value = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.data)
-          ? data.data
-          : []
+      const productsData = res.data?.data?.data || res.data?.data || []
+      products.value = Array.isArray(productsData) ? productsData : []
     }
     
     // Apply search filter

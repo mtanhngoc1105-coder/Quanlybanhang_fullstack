@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/categories"
+const API = "/categories"
 
 export default {
   getAll: () => axiosInstance.get(API),

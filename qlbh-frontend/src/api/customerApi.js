@@ -1,7 +1,7 @@
 // src/api/customerApi.js
 import axiosInstance from "./axiosInstance"
 
-const API = "/api/customers"
+const API = "/customers"
 
 export const getCustomers = () => axiosInstance.get(API)
 

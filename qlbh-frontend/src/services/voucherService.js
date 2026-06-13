@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/vouchers"
+const API = "/vouchers"
 
 export default {
   getAll(page = 1) {

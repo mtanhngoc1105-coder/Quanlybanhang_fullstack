@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/reviews"
+const API = "/reviews"
 
 export const getReviews = () => axiosInstance.get(API)
 export const getReview = (id) => axiosInstance.get(`${API}/${id}`)

@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/order-items"
+const API = "/order-items"
 
 export const getOrderItems = () => axiosInstance.get(API)
 export const getOrderItem = (id) => axiosInstance.get(`${API}/${id}`)

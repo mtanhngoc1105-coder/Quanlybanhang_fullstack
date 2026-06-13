@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/orders"
+const API = "/orders"
 
 export default {
   getAll(page = 1, search = "") {

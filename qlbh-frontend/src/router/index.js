@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router"
 
-
 // layouts
 import AdminLayout from "../layouts/AdminLayout.vue"
 import MainLayout from "../layouts/MainLayout.vue"
@@ -204,7 +203,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
-
 router.beforeEach((to, from, next) => {
   const auth = JSON.parse(localStorage.getItem("auth") || "null")
 

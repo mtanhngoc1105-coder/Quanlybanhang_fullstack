@@ -131,7 +131,7 @@ const submitLogin = async () => {
 
   try {
     // Gọi backend API để đăng nhập
-    const response = await axiosInstance.post('/api/login', {
+    const response = await axiosInstance.post('login', {
       email: email.value,
       password: password.value
     })

@@ -1,7 +1,7 @@
 // src/api/productApi.js
 import axiosInstance from "./axiosInstance";
 
-const API_URL = "/api/reviews";
+const API_URL = "/reviews";
 
 export const getReviews = (search = "", page = 1) => {
   return axiosInstance.get(`${API_URL}?search=${search}&page=${page}`);

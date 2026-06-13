@@ -122,7 +122,7 @@ The project uses axios for API calls. API clients are located in:
 
 ### Base API URL
 ```javascript
-http://127.0.0.1:8000/api/
+http://anhngoc.gamer.gd/api/
 ```
 
 Update this in the respective API files to match your backend URL.
@@ -177,7 +177,7 @@ For issues or questions:
 1. Check the console for error messages
 2. Review the page component code
 3. Check the API integration
-4. Verify backend is running on http://127.0.0.1:8000
+4. Verify backend is running on http://anhngoc.gamer.gd
 
 ## 📝 License
 

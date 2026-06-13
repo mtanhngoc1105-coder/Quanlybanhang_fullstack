@@ -1,7 +1,7 @@
 // src/api/driverOrderApi.js
 import axiosInstance from "./axiosInstance";
 
-const API_URL = "/api/driver-orders";
+const API_URL = "/driver-orders";
 
 export const getDriverOrders = (search = "", page = 1) => {
   return axiosInstance.get(`${API_URL}?search=${search}&page=${page}`);

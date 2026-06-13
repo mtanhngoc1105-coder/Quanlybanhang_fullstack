@@ -204,12 +204,13 @@ const loadProducts = async (page = 1) => {
       page
     })
 
-    const data = res.data?.data || {}
-    products.value = data.data || []
+    const apiData = res.data
+    const paginationData = apiData?.data || {}
+    products.value = paginationData.data || []
     pagination.value = {
-      current_page: data.current_page || page,
-      last_page: data.last_page || 1,
-      total: data.total || 0
+      current_page: paginationData.current_page || page,
+      last_page: paginationData.last_page || 1,
+      total: paginationData.total || 0
     }
     currentPage.value = pagination.value.current_page
   } catch (error) {

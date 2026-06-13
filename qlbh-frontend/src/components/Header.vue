@@ -52,7 +52,7 @@ const toggleMenu = () => showMenu.value = !showMenu.value
 
 const loadCategories = async () => {
   try {
-    const res = await axios.get("http://127.0.0.1:8000/api/categories")
+    const res = await axios.get("https://anhngoc.gamer.gd/api/categories")
     categories.value = res.data
   } catch (err) {
     console.error("Load categories lỗi:", err)

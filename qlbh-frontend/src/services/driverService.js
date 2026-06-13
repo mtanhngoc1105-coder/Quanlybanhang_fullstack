@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/drivers"
+const API = "/drivers"
 
 export const getDrivers = () => axiosInstance.get(API)
 export const getDriver = (id) => axiosInstance.get(`${API}/${id}`)

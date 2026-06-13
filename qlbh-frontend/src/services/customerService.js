@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/customers"
+const API = "/customers"
 
 export const getCustomers = (search = "", page = 1) => {
   return axiosInstance.get(`${API}?search=${search}&page=${page}`)

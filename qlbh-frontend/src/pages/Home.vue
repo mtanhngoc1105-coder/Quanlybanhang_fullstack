@@ -248,20 +248,7 @@ const loadProducts = async () => {
 
     console.log("FULL API =", apiData)
 
-    //  Laravel pagination chuẩn
-    if (apiData.data && apiData.data.data) {
-      products.value = apiData.data.data
-    }
-    // fallback nếu API trả mảng trực tiếp
-    else if (Array.isArray(apiData.data)) {
-      products.value = apiData.data
-    }
-    else if (Array.isArray(apiData)) {
-      products.value = apiData
-    }
-    else {
-      products.value = []
-    }
+    products.value = apiData?.data?.data || apiData?.data || []
 
     console.log("FINAL PRODUCTS =", products.value)
 
@@ -598,7 +585,7 @@ onUnmounted(() => {
   font-size: 16px;
   letter-spacing: 0.02em;
 }
-
+``
 .chat-header p {
   margin: 6px 0 0;
   font-size: 13px;

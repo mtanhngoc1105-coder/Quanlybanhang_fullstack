@@ -1,6 +1,6 @@
 import axiosInstance from "../api/axiosInstance"
 
-const API = "/api/postoffices"
+const API = "/postoffices"
 
 export const getPostOffices = () => axiosInstance.get(API)
 export const getPostOffice = (id) => axiosInstance.get(`${API}/${id}`)
